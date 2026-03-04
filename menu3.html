@@ -934,9 +934,7 @@ function calculateWorkMinutes() {
   const breakTime = document.getElementById('time-break').value;
   const closeTime = document.getElementById('time-close').value;
   const summaryDiv = document.getElementById('work-summary');
-  const breakStart = document.getElementById('break-start').value;
-  const breakEnd = document.getElementById('break-end').value;
-
+ 
   // 1. Converter tudo para minutos
   const minOpen = timeToMinutes(openTime);
   const minClose = timeToMinutes(closeTime);
@@ -968,27 +966,16 @@ function calculateWorkMinutes() {
     open: openTime,
     close: closeTime,
     break: breakTime,
-    availableMinutes: totalNet
+    availableMinutes: totalNet,
+    vagas: scheduleData.config?.vagas || 20, // Mantém o que já tinha ou inicia com 20
+    usarAgendamento: scheduleData.config?.usarAgendamento || false
   };
   
   // Opcional: Atualizar algo no mockup se desejar
   console.log("Minutos disponíveis atualizados:", totalNet);
 
-  // 2. Converte tudo para minutos (ajuste conforme sua lógica de conversão)
-    const totalMinutes = timeToMinutes(close) - timeToMinutes(open);
-    const breakMinutes = timeToMinutes(breakEnd) - timeToMinutes(breakStart);
-    
-    // O RESULTADO REAL:
-    const minutosLiquidos = totalMinutes - breakMinutes;
-
-    // 3. ATUALIZA O OBJETO GLOBAL
-    configuracaoUsuario.minutosDisponiveis = minutosLiquidos;
-
-    // 4. Exibe no painel de resumo (como você já faz)
-    document.getElementById('work-summary').innerHTML = `Total disponível: ${minutosLiquidos} minutos.`;
-
-    // 5. GATILHO: Avisa o calculador de vagas que o tempo mudou!
-    calcularTempoVaga();
+  // --- LINHA NOVA: Sempre que calcular o tempo de trabalho, recalcula o tempo por vaga ---
+  calcularTempoVaga();
   
 }
 
@@ -999,6 +986,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
