@@ -454,20 +454,26 @@ input:checked + .slider:before { transform: translateX(18px); }
       dayElement.innerText = day;
       const dateKey = `${currentYear}-${currentMonth + 1}-${day}`;
   
-      // Eventos unificados para Mouse e Touch
+      // EVENTOS DE MOUSE
       dayElement.addEventListener('mousedown', (e) => startPress(e, dateKey));
       dayElement.addEventListener('mouseup', (e) => endPress(e, dateKey));
+  
+      // EVENTOS DE TOQUE (CELULAR)
       dayElement.addEventListener('touchstart', (e) => {
-        // e.preventDefault(); // Previne zoom/menu de contexto no celular
+        e.preventDefault(); // ESSENCIAL: Impede que o navegador simule um clique de mouse
         startPress(e, dateKey);
-      }, {passive: false});
-      dayElement.addEventListener('touchend', (e) => endPress(e, dateKey));
+      }, { passive: false });
+  
+      dayElement.addEventListener('touchend', (e) => {
+        e.preventDefault(); // Impede o clique fantasma
+        endPress(e, dateKey);
+      }, { passive: false });
   
       calendarGrid.appendChild(dayElement);
     }
   }
   
-  // LÓGICA DE PRESSÃO (VIBRAÇÃO E SELEÇÃO)
+  // LÓGICA DE PRESSÃO
   function startPress(event, dateKey) {
     isLongPress = false;
     const target = event.currentTarget;
@@ -509,14 +515,16 @@ input:checked + .slider:before { transform: translateX(18px); }
     mockupContainer.innerHTML = "";
     let hasData = false;
   
-    for (const [date, status] of Object.entries(scheduleData)) {
+    const sortedKeys = Object.keys(scheduleData).sort();
+  
+    for (const date of sortedKeys) {
+      const status = scheduleData[date];
       if (status) {
         hasData = true;
         const item = document.createElement('div');
         item.style.fontSize = "10px";
         item.style.padding = "4px";
         item.style.borderBottom = "1px solid #eee";
-        // Formata a data para ficar mais bonita no mockup
         const dayLabel = date.split('-')[2];
         item.innerHTML = `Dia ${dayLabel}: <strong>${status}</strong>`;
         mockupContainer.appendChild(item);
@@ -549,10 +557,20 @@ input:checked + .slider:before { transform: translateX(18px); }
   
     if (tipo === 'titulo') {
       title.innerText = "Editar Título";
-      content.innerHTML = `<input type="text" class="input-field" placeholder="Novo título..." oninput="updateTitle(this.value)">`;
+      content.innerHTML = `
+        <input type="text" class="input-field" placeholder="Novo título..." oninput="updateTitle(this.value)">
+        <label style="font-size:10px; margin-top:10px; display:block;">Cor do Texto</label>
+        <input type="color" onchange="updateTitleColor(this.value)">
+      `;
     } else if (tipo === 'banner') {
       title.innerText = "Editar Banner";
-      content.innerHTML = `<input type="color" style="width:100%" onchange="updateBannerColor(this.value)">`;
+      content.innerHTML = `
+        <button class="save-btn" style="font-size:12px;">Subir Imagem</button>
+        <div style="margin-top:10px;">
+          <label style="font-size:10px;">Cor de Fundo</label>
+          <input type="color" style="width:100%" onchange="updateBannerColor(this.value)">
+        </div>
+      `;
     }
   }
   
@@ -561,7 +579,10 @@ input:checked + .slider:before { transform: translateX(18px); }
   }
   
   function updateTitle(val) { document.getElementById('preview-title').innerText = val; }
+  function updateTitleColor(val) { document.getElementById('preview-title').style.color = val; }
   function updateBannerColor(val) { document.querySelector('.banner').style.background = val; }
+  
+
   
   
 
@@ -632,6 +653,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
