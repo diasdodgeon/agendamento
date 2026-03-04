@@ -246,6 +246,64 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 
 .popover-body { padding: 15px; }
+
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none; /* Evita selecionar texto ao segurar */
+  transition: 0.2s;
+}
+
+/* Estado: Folga (Clique rápido) */
+.day-off {
+  background-color: #ff4d4d !important;
+  color: white;
+}
+
+/* Estado: Meio Expediente (Clique longo) */
+.day-half {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%) !important;
+  color: white;
+}
+
+.weekdays-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 10px;
+  font-weight: bold;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.calendar-day.empty {
+  background: transparent;
+  cursor: default;
+}
+
+/* Melhorando a visualização no Mockup */
+#preview-schedule-list {
+  max-height: 150px;
+  overflow-y: auto;
+  border-top: 1px dashed #ddd;
+  margin-top: 10px;
+}    
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -253,6 +311,7 @@ input:checked + .slider:before { transform: translateX(18px); }
     <button class="tab-button" onclick="openTab(event, 'notificacoes')">Avisos</button>
     <button class="tab-button" onclick="openTab(event, 'seguranca')">Senha</button>
     <button class="tab-button" onclick="openTab(event, 'ajuda')">Ajuda</button>
+    <button class="tab-button" onclick="openTab(event, 'horarios')">Horários</button> 
     <button class="tab-button" onclick="openTab(event, 'aparencia')">Aparência</button>
   </nav>
 
@@ -302,6 +361,22 @@ input:checked + .slider:before { transform: translateX(18px); }
     <button class="action-card danger">Encerrar todas as sessões</button>
   </div>
 
+  <div id="horarios" class="tab-window">
+    <h3 id="calendar-month-name">Mês Atual</h3>
+    <p class="instruction-text">Toque rápido: Folga | Segure: Meio Expediente</p>
+    
+    <div class="calendar-wrapper">
+      <div class="weekdays-grid">
+        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sab</div>
+      </div>
+      <div class="calendar-grid" id="calendar-admin">
+        <div class="calendar-day" onmousedown="startPress(event, 1)" onmouseup="endPress(event, 1)" ontouchstart="startPress(event, 1)" ontouchend="endPress(event, 1)">1</div>
+        <div class="calendar-day" onmousedown="startPress(event, 2)" onmouseup="endPress(event, 2)">2</div>
+        <div class="calendar-day" onmousedown="startPress(event, 3)" onmouseup="endPress(event, 3)">3</div>
+      </div>
+      </div>
+    </div>
+  </div>
 
 
   <div id="aparencia" class="tab-window">
@@ -324,6 +399,13 @@ input:checked + .slider:before { transform: translateX(18px); }
 
         <div class="editable-element main-button" onclick="openEditor('botao')">
           <button id="preview-button">Agendar Agora</button>
+        </div>
+
+        <div class="editable-element schedule-preview" onclick="openEditor('horarios-view')">
+          <p style="font-size: 10px; font-weight: bold; margin: 5px;">Status de Horários:</p>
+          <div id="preview-schedule-list">
+            <span style="font-size: 9px; color: #999; padding: 5px;">Nenhuma alteração nos horários.</span>
+          </div>
         </div>
 
       </div>
@@ -385,6 +467,117 @@ function openEditor(tipo) {
   }
 }
 
+
+// VARIÁVEIS GLOBAIS
+let pressTimer;
+let isLongPress = false;
+const scheduleData = {}; 
+const now = new Date();
+const currentMonth = now.getMonth();
+const currentYear = now.getFullYear();
+const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+// GERAR CALENDÁRIO REAL
+function generateCalendar() {
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const calendarGrid = document.getElementById('calendar-admin');
+  const monthTitle = document.getElementById('calendar-month-name');
+
+  if (!calendarGrid) return;
+
+  monthTitle.innerText = `${monthNames[currentMonth]} ${currentYear}`;
+  calendarGrid.innerHTML = "";
+
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    const emptyDiv = document.createElement('div');
+    emptyDiv.classList.add('calendar-day', 'empty');
+    calendarGrid.appendChild(emptyDiv);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayElement = document.createElement('div');
+    dayElement.classList.add('calendar-day');
+    dayElement.innerText = day;
+    const dateKey = `${currentYear}-${currentMonth + 1}-${day}`;
+
+    // Eventos unificados para Mouse e Touch
+    dayElement.addEventListener('mousedown', (e) => startPress(e, dateKey));
+    dayElement.addEventListener('mouseup', (e) => endPress(e, dateKey));
+    dayElement.addEventListener('touchstart', (e) => {
+      // e.preventDefault(); // Previne zoom/menu de contexto no celular
+      startPress(e, dateKey);
+    }, {passive: false});
+    dayElement.addEventListener('touchend', (e) => endPress(e, dateKey));
+
+    calendarGrid.appendChild(dayElement);
+  }
+}
+
+// LÓGICA DE PRESSÃO (VIBRAÇÃO E SELEÇÃO)
+function startPress(event, dateKey) {
+  isLongPress = false;
+  const target = event.currentTarget;
+  
+  pressTimer = window.setTimeout(function() {
+    isLongPress = true;
+    if (navigator.vibrate) navigator.vibrate(60); 
+    handleDaySelection(dateKey, 'half', target);
+  }, 600);
+}
+
+function endPress(event, dateKey) {
+  clearTimeout(pressTimer);
+  if (!isLongPress) {
+    handleDaySelection(dateKey, 'off', event.currentTarget);
+  }
+}
+
+function handleDaySelection(dateKey, type, element) {
+  if (!element) return;
+
+  if (type === 'half') {
+    element.classList.toggle('day-half');
+    element.classList.remove('day-off');
+    scheduleData[dateKey] = element.classList.contains('day-half') ? 'Meio-Período' : null;
+  } else {
+    element.classList.toggle('day-off');
+    element.classList.remove('day-half');
+    scheduleData[dateKey] = element.classList.contains('day-off') ? 'Folga' : null;
+  }
+  renderMockupSchedule();
+}
+
+// SINCRONIZAÇÃO COM O MOCKUP
+function renderMockupSchedule() {
+  const mockupContainer = document.getElementById('preview-schedule-list');
+  if (!mockupContainer) return;
+
+  mockupContainer.innerHTML = "";
+  let hasData = false;
+
+  for (const [date, status] of Object.entries(scheduleData)) {
+    if (status) {
+      hasData = true;
+      const item = document.createElement('div');
+      item.style.fontSize = "10px";
+      item.style.padding = "4px";
+      item.style.borderBottom = "1px solid #eee";
+      // Formata a data para ficar mais bonita no mockup
+      const dayLabel = date.split('-')[2];
+      item.innerHTML = `Dia ${dayLabel}: <strong>${status}</strong>`;
+      mockupContainer.appendChild(item);
+    }
+  }
+
+  if (!hasData) {
+    mockupContainer.innerHTML = '<span style="font-size: 9px; color: #999; padding: 5px;">Nenhuma alteração nos horários.</span>';
+  }
+}
+
+
+
+  
 function closeEditor() {
   document.getElementById('editor-popover').style.display = 'none';
 }
@@ -401,8 +594,12 @@ function updateTitleColor(val) {
 function updateBannerColor(val) {
   document.querySelector('.banner').style.background = val;
 }
-  
+
+
+// INICIALIZAÇÃO
+window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
