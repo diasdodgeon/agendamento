@@ -363,7 +363,30 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 .holiday-item strong {
   color: #e65100;
-}  
+} 
+
+.work-config-container {
+  margin-top: 20px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.calculation-panel {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #eef2ff;
+  border-radius: 8px;
+  border-left: 4px solid #4f46e5;
+  font-size: 13px;
+  color: #3730a3;
+  line-height: 1.6;
+}
+
+.calculation-panel b {
+  color: #4f46e5;
+}
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -441,6 +464,26 @@ input:checked + .slider:before { transform: translateX(18px); }
     </div>
     <div id="holiday-list-container" class="holiday-info-box">
     </div>
+    <div class="work-config-container">
+  <div class="setting-group">
+    <label><strong>*Obrigatório</strong> - Horário de abertura</label>
+    <input type="time" id="time-open" class="input-field" value="07:00" onchange="calculateWorkMinutes()">
+  </div>
+
+  <div class="setting-group">
+    <label><strong>Opcional</strong> - Duração do intervalo (almoço)</label>
+    <input type="time" id="time-break" class="input-field" value="01:00" onchange="calculateWorkMinutes()">
+  </div>
+
+  <div class="setting-group">
+    <label><strong>*Obrigatório</strong> - Horário de encerramento</label>
+    <input type="time" id="time-close" class="input-field" value="17:00" onchange="calculateWorkMinutes()">
+  </div>
+
+  <div id="work-summary" class="calculation-panel">
+    Carregando cálculos...
+  </div>
+</div>
   </div>
 
 
@@ -489,6 +532,8 @@ input:checked + .slider:before { transform: translateX(18px); }
 </main>
 </div>
 <script type="text/javascript">
+  // Inicializar o cálculo assim que a página carregar
+  window.addEventListener('DOMContentLoaded', calculateWorkMinutes);
 
   // VARIÁVEIS GLOBAIS
   let pressTimer;
@@ -793,12 +838,65 @@ function updateBannerColor(val) {
   document.querySelector('.banner').style.background = val;
 }
 
+
+// Função auxiliar: Transforma "07:30" em 450 (minutos)
+function timeToMinutes(timeString) {
+  const [hours, minutes] = timeString.split(':').map(Number);
+  return (hours * 60) + minutes;
+}
+
+function calculateWorkMinutes() {
+  const openTime = document.getElementById('time-open').value;
+  const breakTime = document.getElementById('time-break').value;
+  const closeTime = document.getElementById('time-close').value;
+  const summaryDiv = document.getElementById('work-summary');
+
+  // 1. Converter tudo para minutos
+  const minOpen = timeToMinutes(openTime);
+  const minClose = timeToMinutes(closeTime);
+  const minBreak = timeToMinutes(breakTime);
+
+  // 2. Cálculo Total Bruto
+  let totalGross = minClose - minOpen;
+
+  // Validação simples: encerramento deve ser após a abertura
+  if (totalGross <= 0) {
+    summaryDiv.innerHTML = "⚠️ <b>Erro:</b> O horário de encerramento deve ser após a abertura.";
+    summaryDiv.style.borderColor = "#dc3545";
+    return;
+  }
+
+  // 3. Cálculo Líquido (Subtraindo intervalo)
+  const totalNet = totalGross - minBreak;
+
+  // 4. Exibir para o usuário (e deixar pronto para o sistema)
+  summaryDiv.style.borderColor = "#4f46e5";
+  summaryDiv.innerHTML = `
+    🕒 <b>Total Bruto:</b> ${Math.floor(totalGross/60)}h (${totalGross} minutos)<br>
+    ☕ <b>Intervalo:</b> ${minBreak} minutos<br>
+    ✅ <b>Disponível para Clientes:</b> <b>${totalNet} minutos</b>
+  `;
+
+  // Salvar no nosso objeto global para usar no Mockup depois
+  scheduleData.config = {
+    open: openTime,
+    close: closeTime,
+    break: breakTime,
+    availableMinutes: totalNet
+  };
+  
+  // Opcional: Atualizar algo no mockup se desejar
+  console.log("Minutos disponíveis atualizados:", totalNet);
+}
+
+
 // INICIALIZAÇÃO
 window.onload = generateCalendar;
   
 </script>
 </body>
 </html>
+
 
 
 
