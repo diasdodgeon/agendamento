@@ -560,7 +560,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 
   // Objeto Global para guardar os dados e serem usados na aba 'Aparência'
   let configuracaoUsuario = {
-      calculateWorkMinutes,
+      
       minutosDisponiveis: 600, // Esse valor vem do seu cálculo anterior de trabalho
       vagas: 10,
       usarAgendamento: false,
@@ -593,7 +593,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   // A fórmula mágica
   function calcularTempoVaga() {
       // Cálculo: Minutos totais / Vagas
-      let minutosTotais = configuracaoUsuario.calculateWorkMinutes;
+      let minutosTotais = configuracaoUsuario.minutosDisponiveis;
       let vagas = configuracaoUsuario.vagas;
       
       let resultado = Math.floor(minutosTotais / vagas);
@@ -968,6 +968,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
