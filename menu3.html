@@ -340,6 +340,30 @@ input:checked + .slider:before { transform: translateX(18px); }
   color: #ff9800;
   font-weight: bold;
 }
+
+.holiday-info-box {
+  margin-top: 15px;
+  padding: 10px;
+  background: #fff8e1; /* Um tom leve de amarelo/laranja para combinar com o destaque */
+  border-radius: 8px;
+  border-left: 4px solid #ff9800;
+  font-size: 12px;
+  color: #555;
+}
+
+.holiday-item {
+  margin-bottom: 5px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-bottom: 2px;
+}
+
+.holiday-item:last-child {
+  border-bottom: none;
+}
+
+.holiday-item strong {
+  color: #e65100;
+}  
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -414,6 +438,8 @@ input:checked + .slider:before { transform: translateX(18px); }
         <div class="calendar-day" onmousedown="startPress(event, 2)" onmouseup="endPress(event, 2)">2</div>
         <div class="calendar-day" onmousedown="startPress(event, 3)" onmouseup="endPress(event, 3)">3</div>
       </div>
+    </div>
+    <div id="holiday-list-container" class="holiday-info-box">
     </div>
   </div>
 
@@ -540,6 +566,39 @@ input:checked + .slider:before { transform: translateX(18px); }
   
       calendarGrid.appendChild(dayElement);
     }
+    // NOVA FUNÇÃO: Renderiza o texto dos feriados abaixo do mês
+    function renderHolidaysText() {
+      const listContainer = document.getElementById('holiday-list-container');
+      const viewMonth = viewDate.getMonth() + 1; // +1 porque JS conta meses de 0 a 11
+      const viewYear = viewDate.getFullYear();
+      
+      if (!listContainer) return;
+    
+      listContainer.innerHTML = ""; // Limpa a lista atual
+      let hasHolidays = false;
+    
+      // Percorrer o objeto de feriados
+      for (const [dateKey, name] of Object.entries(holidays)) {
+        const [year, month, day] = dateKey.split('-').map(Number);
+    
+        // Verifica se o feriado pertence ao ano e mês que estamos vendo
+        if (year === viewYear && month === viewMonth) {
+          hasHolidays = true;
+          const item = document.createElement('div');
+          item.classList.add('holiday-item');
+          item.innerHTML = `<strong>${dateKey}:</strong> ${name}`;
+          listContainer.appendChild(item);
+        }
+      }
+    
+      // Se não houver feriados no mês, podemos esconder a caixa ou mostrar uma mensagem
+      if (!hasHolidays) {
+        listContainer.style.display = 'none';
+      } else {
+        listContainer.style.display = 'block';
+      }
+    }
+    renderHolidaysText();
   }
   
   // MUDAR DE MÊS
@@ -740,6 +799,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
