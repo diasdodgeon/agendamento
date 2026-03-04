@@ -282,6 +282,30 @@ input:checked + .slider:before { transform: translateX(18px); }
   color: white;
 }
 
+
+.weekdays-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 10px;
+  font-weight: bold;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.calendar-day.empty {
+  background: transparent;
+  cursor: default;
+}
+
+/* Melhorando a visualização no Mockup */
+#preview-schedule-list {
+  max-height: 150px;
+  overflow-y: auto;
+  border-top: 1px dashed #ddd;
+  margin-top: 10px;
+}
+
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -341,15 +365,21 @@ input:checked + .slider:before { transform: translateX(18px); }
   </div>
 
   <div id="horarios" class="tab-window">
-    <h3>Configurar Horários</h3>
-    <p class="instruction-text">Toque rápido para <b>Folga</b> (Vermelho). Segure para <b>Meio Expediente</b> (Degradê).</p>
+
+    <h3 id="calendar-month-name">Mês Atual</h3>
+    <p class="instruction-text">Toque rápido: Folga | Segure: Meio Expediente</p>
     
-    <div class="calendar-grid" id="calendar-admin">
-      <div class="calendar-day" onmousedown="startPress(event, 1)" onmouseup="endPress(event, 1)" ontouchstart="startPress(event, 1)" ontouchend="endPress(event, 1)">1</div>
-      <div class="calendar-day" onmousedown="startPress(event, 2)" onmouseup="endPress(event, 2)">2</div>
-      <div class="calendar-day" onmousedown="startPress(event, 3)" onmouseup="endPress(event, 3)">3</div>
+    <div class="calendar-wrapper">
+      <div class="weekdays-grid">
+        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sab</div>
       </div>
+      <div class="calendar-grid" id="calendar-admin"></div>
+    </div>
   </div>
+
+
+    
+  
 
   <div id="aparencia" class="tab-window">
     <h3>Aparência</h3>
@@ -438,6 +468,37 @@ function openEditor(tipo) {
   }
 }
 
+// Ajuste na função handleDaySelection para usar o dateKey
+function handleDaySelection(dateKey, type, targetElement) {
+  if (type === 'half') {
+    targetElement.classList.toggle('day-half');
+    targetElement.classList.remove('day-off');
+    scheduleData[dateKey] = targetElement.classList.contains('day-half') ? 'Meio-Período' : null;
+  } else {
+    targetElement.classList.toggle('day-off');
+    targetElement.classList.remove('day-half');
+    scheduleData[dateKey] = targetElement.classList.contains('day-off') ? 'Folga' : null;
+  }
+  renderMockupSchedule();
+}
+
+// Atualizar startPress e endPress para passar o elemento alvo
+function startPress(event, dateKey) {
+  const target = event.currentTarget;
+  isLongPress = false;
+  pressTimer = window.setTimeout(function() {
+    isLongPress = true;
+    handleDaySelection(dateKey, 'half', target);
+    if (navigator.vibrate) navigator.vibrate(50);
+  }, 600);
+}
+
+function endPress(event, dateKey) {
+  clearTimeout(pressTimer);
+  if (!isLongPress) {
+    handleDaySelection(dateKey, 'off', event.currentTarget);
+  }
+}
 
 let pressTimer;
 let isLongPress = false;
@@ -481,6 +542,63 @@ function handleDaySelection(day, type) {
   renderMockupSchedule();
 }
 
+
+
+
+const now = new Date();
+const currentMonth = now.getMonth();
+const currentYear = now.getFullYear();
+
+// Nomes dos meses para o título
+const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+                    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+function generateCalendar() {
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const calendarGrid = document.getElementById('calendar-admin');
+  const monthTitle = document.getElementById('calendar-month-name');
+
+  if(!calendarGrid) return;
+
+  monthTitle.innerText = `${monthNames[currentMonth]} ${currentYear}`;
+  calendarGrid.innerHTML = "";
+
+  // 1. Criar espaços vazios para alinhar o dia da semana inicial
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    const emptyDiv = document.createElement('div');
+    emptyDiv.classList.add('calendar-day', 'empty');
+    calendarGrid.appendChild(emptyDiv);
+  }
+
+  // 2. Criar os dias reais
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayElement = document.createElement('div');
+    dayElement.classList.add('calendar-day');
+    dayElement.innerText = day;
+    
+    // Identificador único (ex: 2024-05-01)
+    const dateKey = `${currentYear}-${currentMonth + 1}-${day}`;
+    
+    // Restaurar estado se já existir no scheduleData
+    if(scheduleData[dateKey] === 'Folga') dayElement.classList.add('day-off');
+    if(scheduleData[dateKey] === 'Meio-Período') dayElement.classList.add('day-half');
+
+    // Eventos de clique e pressão
+    dayElement.onmousedown = (e) => startPress(e, dateKey);
+    dayElement.onmouseup = (e) => endPress(e, dateKey);
+    dayElement.ontouchstart = (e) => startPress(e, dateKey);
+    dayElement.ontouchend = (e) => endPress(e, dateKey);
+
+    calendarGrid.appendChild(dayElement);
+  }
+}
+
+// Chame a função ao carregar a página ou ao abrir a aba
+generateCalendar();
+
+
+
 // Esta função leva os dados para o Mockup na outra aba
 function renderMockupSchedule() {
   const mockupContainer = document.getElementById('preview-schedule-list');
@@ -522,10 +640,3 @@ function updateBannerColor(val) {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
