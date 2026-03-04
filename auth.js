@@ -75,8 +75,8 @@ loginForm.addEventListener("submit", async (e) => {
     await signInWithEmailAndPassword(auth, email, senha);
     mensagem.innerText = "Login realizado com sucesso!";
 
-    // Futuramente redirecionaremos para dashboard
-    // window.location.href = "dashboard.html";
+    //redireciona para dashboard
+    window.location.href = "dashboard.html";
 
   } catch (error) {
     mensagem.innerText = "Erro: " + error.message;
@@ -89,4 +89,5 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("Usuário logado:", user.uid);
   }
+
 });
