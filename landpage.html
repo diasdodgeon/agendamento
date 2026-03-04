@@ -1,9 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-	<title></title>
+  <meta charset="UTF-8">
+  <title>Meu Sistema - Cadastro</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+  <h1>Organize seus atendimentos com QRCode</h1>
+  <p>Crie sua conta gratuita e comece agora.</p>
+
+  <form id="cadastroForm">
+    <input type="text" id="nome" placeholder="Nome Completo" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="senha" placeholder="Senha" required>
+    <input type="text" id="whatsapp" placeholder="WhatsApp" required>
+    <input type="text" id="endereco" placeholder="Endereço Completo" required>
+    <button type="submit">Criar Conta</button>
+  </form>
+
+  <p id="mensagem"></p>
+
+  <!-- Firebase SDK v9 modular -->
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/cadastro.js"></script>
 
 </body>
 </html>
