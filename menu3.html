@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+</head>
+<body>
+  <style type="text/css">
+    
+    /* Container Principal ocupando a tela toda */
+.mobile-menu-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  background-color: #f4f4f9;
+  font-family: sans-serif;
+}
+
+/* Menu Lateral (Abas) */
+.side-tabs {
+  width: 30%;
+  background-color: #ffffff;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-button {
+  padding: 20px 10px;
+  border: none;
+  background: none;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  transition: 0.3s;
+  border-left: 4px solid transparent;
+}
+
+/* Aba Ativa: Destaque visual */
+.tab-button.active {
+  background-color: #eef2ff;
+  color: #4f46e5;
+  border-left: 4px solid #4f46e5;
+  font-weight: bold;
+}
+
+/* Área da Janela à Direita */
+.tab-content-area {
+  width: 70%;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Esconder as janelas por padrão */
+.tab-window {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Mostrar a janela ativa */
+.tab-window.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Estilo para grupos de input */
+.setting-group {
+  margin-bottom: 15px;
+}
+
+.setting-group label {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box; /* Garante que o padding não quebre a largura */
+}
+
+/* Itens com Switch (Toggle) */
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* Switch Estilizado */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px; width: 16px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider { background-color: #4f46e5; }
+input:checked + .slider:before { transform: translateX(18px); }
+
+/* Botões de Ação */
+.action-card {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.action-card.danger {
+  color: #dc3545;
+  border-color: #f8d7da;
+}
+
+.save-btn {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 12px;
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+/* Instrução de texto */
+.instruction-text {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+/* O Celular */
+.phone-mockup {
+  width: 240px; /* Miniatura para caber no menu lateral */
+  height: 480px;
+  background: #000;
+  border-radius: 30px;
+  padding: 10px;
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Elementos Editáveis dentro do Mockup */
+.editable-element {
+  cursor: pointer;
+  transition: 0.2s;
+  position: relative;
+}
+
+.editable-element:hover {
+  outline: 2px dashed #4f46e5;
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
+.banner {
+  height: 120px;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #666;
+}
+
+.title { padding: 15px; text-align: center; }
+.title h2 { margin: 0; font-size: 18px; }
+
+.main-button { padding: 20px; display: flex; justify-content: center; }
+.main-button button { 
+  background: #4f46e5; color: white; border: none; 
+  padding: 10px 20px; border-radius: 5px; width: 100%;
+}
+
+/* A Janelinha de Edição (Popover) */
+.editor-popover {
+  display: none; /* Escondido por padrão */
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 200px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
+  z-index: 100;
+  border: 1px solid #ddd;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.popover-header {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.popover-body { padding: 15px; }
+</style>
+<div class="mobile-menu-container">
+  <nav class="side-tabs">
+    <button class="tab-button active" onclick="openTab(event, 'perfil')">Perfil</button>
+    <button class="tab-button" onclick="openTab(event, 'notificacoes')">Avisos</button>
+    <button class="tab-button" onclick="openTab(event, 'seguranca')">Senha</button>
+    <button class="tab-button" onclick="openTab(event, 'ajuda')">Ajuda</button>
+    <button class="tab-button" onclick="openTab(event, 'aparencia')">Aparência</button>
+  </nav>
+
+  <main class="tab-content-area">
+  
+  <div id="perfil" class="tab-window active">
+    <h3>Meu Perfil</h3>
+    <div class="setting-group">
+      <label>Nome de Exibição</label>
+      <input type="text" placeholder="Seu nome..." class="input-field">
+    </div>
+    <div class="setting-group">
+      <label>Bio</label>
+      <textarea class="input-field" rows="3"></textarea>
+    </div>
+    <button class="save-btn">Salvar Alterações</button>
+  </div>
+
+  <div id="notificacoes" class="tab-window">
+    <h3>Avisos</h3>
+    <div class="setting-item">
+      <span>Notificações Push</span>
+      <label class="switch">
+        <input type="checkbox" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting-item">
+      <span>Alertas por E-mail</span>
+      <label class="switch">
+        <input type="checkbox">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div id="seguranca" class="tab-window">
+    <h3>Segurança</h3>
+    <button class="action-card">Alterar Senha</button>
+    <button class="action-card">Ativar 2FA (Dois Fatores)</button>
+    <button class="action-card danger">Encerrar todas as sessões</button>
+  </div>
+  <div id="ajuda" class="tab-window">
+    <h3>Segurança</h3>
+    <button class="action-card">Alterar Senha</button>
+    <button class="action-card">Ativar 2FA (Dois Fatores)</button>
+    <button class="action-card danger">Encerrar todas as sessões</button>
+  </div>
+
+
+
+  <div id="aparencia" class="tab-window">
+    <h3>Aparência</h3>
+    <p class="instruction-text">
+      É assim que seus clientes verão sua página de agendamento. 
+      Para editar, basta clicar no aspecto que deseja alterar (cor, imagem, título, etc).
+    </p>
+
+    <div class="phone-mockup">
+      <div class="phone-screen">
+        
+        <div class="editable-element banner" onclick="openEditor('banner')">
+          <span>Clique para alterar o Banner</span>
+        </div>
+
+        <div class="editable-element title" onclick="openEditor('titulo')">
+          <h2 id="preview-title">Título da sua Página</h2>
+        </div>
+
+        <div class="editable-element main-button" onclick="openEditor('botao')">
+          <button id="preview-button">Agendar Agora</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="editor-popover" class="editor-popover">
+      <div class="popover-header">
+        <span id="editor-title">Editar</span>
+        <button onclick="closeEditor()">×</button>
+      </div>
+      <div id="editor-content" class="popover-body">
+        </div>
+    </div>
+  </div>
+
+</main>
+</div>
+<script type="text/javascript">
+  function openTab(evt, tabId) {
+  // 1. Esconder todas as janelas de conteúdo
+  const windows = document.getElementsByClassName("tab-window");
+  for (let i = 0; i < windows.length; i++) {
+    windows[i].classList.remove("active");
+  }
+
+  // 2. Remover a classe "active" de todos os botões
+  const buttons = document.getElementsByClassName("tab-button");
+  for (let i = 0; i < buttons.length; i++) {
+    buttons[i].classList.remove("active");
+  }
+
+  // 3. Mostrar a janela atual e adicionar classe ativa ao botão clicado
+  document.getElementById(tabId).classList.add("active");
+  evt.currentTarget.classList.add("active");
+}
+function openEditor(tipo) {
+  const popover = document.getElementById('editor-popover');
+  const title = document.getElementById('editor-title');
+  const content = document.getElementById('editor-content');
+  
+  popover.style.display = 'block';
+
+  if (tipo === 'titulo') {
+    title.innerText = "Editar Título";
+    content.innerHTML = `
+      <input type="text" id="edit-title-input" class="input-field" placeholder="Novo título..." oninput="updateTitle(this.value)">
+      <label style="font-size:10px; margin-top:10px; display:block;">Cor do Texto</label>
+      <input type="color" onchange="updateTitleColor(this.value)">
+    `;
+  } else if (tipo === 'banner') {
+    title.innerText = "Editar Banner";
+    content.innerHTML = `
+      <button class="save-btn" style="font-size:12px;">Subir Imagem</button>
+      <div style="margin-top:10px;">
+        <label style="font-size:10px;">Cor de Fundo</label>
+        <input type="color" style="width:100%" onchange="updateBannerColor(this.value)">
+      </div>
+    `;
+  }
+}
+
+function closeEditor() {
+  document.getElementById('editor-popover').style.display = 'none';
+}
+
+// Funções de atualização em Tempo Real
+function updateTitle(val) {
+  document.getElementById('preview-title').innerText = val;
+}
+
+function updateTitleColor(val) {
+  document.getElementById('preview-title').style.color = val;
+}
+
+function updateBannerColor(val) {
+  document.querySelector('.banner').style.background = val;
+}
+  
+</script>
+</body>
+</html>
