@@ -487,7 +487,9 @@ input:checked + .slider:before { transform: translateX(18px); }
       <button type="button" onclick="changeSlots(1)">+</button>
     </div>
   </div>
-  
+  <div id="work-summary" class="calculation-panel">
+    Carregando cálculos...
+  </div>
   <div class="form-group checkbox-group">
     <input type="checkbox" id="check-agendamento" onchange="toggleScheduling()">
     <label for="check-agendamento">Definir horários de agendamento</label>
@@ -503,9 +505,7 @@ input:checked + .slider:before { transform: translateX(18px); }
     </div>
   </div>
 
-  <div id="work-summary" class="calculation-panel">
-    Carregando cálculos...
-  </div>
+  
 </div>
   </div>
 
@@ -570,50 +570,59 @@ input:checked + .slider:before { transform: translateX(18px); }
       tempoPorVaga: 30
   };
   
-  // Função para alterar o contador de vagas
   function changeSlots(val) {
-      let input = document.getElementById('vagas-diarias');
-      let novoValor = parseInt(input.value) + val;
-      
-      if (novoValor > 0) {
-          input.value = novoValor;
-          configuracaoUsuario.vagas = novoValor;
-          calcularTempoVaga();
-      }
+    const input = document.getElementById('vagas-diarias');
+    let novoValor = parseInt(input.value) + val;
+  
+    if (novoValor >= 1) { // Mínimo de 1 vaga
+      input.value = novoValor;
+      // Dispara o cálculo novamente
+      calcularTempoVaga();
+    }
   }
   
-  // Função para mostrar/esconder o painel e atualizar o estado
   function toggleScheduling() {
-      const checkbox = document.getElementById('check-agendamento');
-      const painel = document.getElementById('painel-agendamento');
-      
-      configuracaoUsuario.usarAgendamento = checkbox.checked;
-      painel.style.display = checkbox.checked ? 'block' : 'none';
-      
-      if(checkbox.checked) calcularTempoVaga();
+    const checkbox = document.getElementById('check-agendamento');
+    const painel = document.getElementById('painel-agendamento');
+    
+    // Guarda a preferência do usuário
+    scheduleData.config.usarAgendamento = checkbox.checked;
+    
+    // Mostra ou esconde o painel
+    painel.style.display = checkbox.checked ? 'block' : 'none';
+    
+    if (checkbox.checked) {
+      calcularTempoVaga();
+    }
   }
   
   // A fórmula mágica
   function calcularTempoVaga() {
-    let minutosTotais = configuracaoUsuario.minutosDisponiveis;
-    let vagas = configuracaoUsuario.vagas;
+  // Busca os minutos que sua função calculateWorkMinutes salvou
+  const minutosDisponiveis = scheduleData.config.availableMinutes || 0;
+  
+  // Busca a quantidade de vagas do input
+  const inputVagas = document.getElementById('vagas-diarias');
+  const qtdVagas = parseInt(inputVagas.value) || 1;
 
-    if (minutosTotais <= 0 || vagas <= 0) return; // Evita divisão por zero
-
-    let resultado = Math.floor(minutosTotais / vagas);
-    configuracaoUsuario.tempoPorVaga = resultado;
-
-    // Formatação para exibição no timer 00:00
-    let horas = Math.floor(resultado / 60);
-    let minutos = resultado % 60;
-    let display = `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+  if (minutosDisponiveis > 0) {
+    // Cálculo: Minutos / Vagas
+    const tempoPorVaga = Math.floor(minutosDisponiveis / qtdVagas);
     
-    // Atualiza o display do timer na interface
+    // Salva o resultado no objeto global para a aba "Aparência"
+    scheduleData.config.tempoPorVaga = tempoPorVaga;
+    scheduleData.config.vagas = qtdVagas;
+
+    // Formata para exibição (00:00)
+    const h = Math.floor(tempoPorVaga / 60);
+    const m = tempoPorVaga % 60;
+    const display = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+
+    // Atualiza o timer na tela
     const timerElement = document.getElementById('timer-vaga');
-    if (timerElement) {
-        timerElement.innerText = display;
-    }
+    if (timerElement) timerElement.innerText = display;
   }
+ }
 
   // VARIÁVEIS GLOBAIS
   let pressTimer;
@@ -986,6 +995,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
