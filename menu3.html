@@ -468,28 +468,61 @@ function openEditor(tipo) {
   }
 }
 
-// Ajuste na função handleDaySelection para usar o dateKey
-function handleDaySelection(dateKey, type, targetElement) {
-  if (type === 'half') {
-    targetElement.classList.toggle('day-half');
-    targetElement.classList.remove('day-off');
-    scheduleData[dateKey] = targetElement.classList.contains('day-half') ? 'Meio-Período' : null;
-  } else {
-    targetElement.classList.toggle('day-off');
-    targetElement.classList.remove('day-half');
-    scheduleData[dateKey] = targetElement.classList.contains('day-off') ? 'Folga' : null;
+// VARIÁVEIS GLOBAIS
+let pressTimer;
+let isLongPress = false;
+const scheduleData = {}; 
+const now = new Date();
+const currentMonth = now.getMonth();
+const currentYear = now.getFullYear();
+const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+// GERAR CALENDÁRIO REAL
+function generateCalendar() {
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const calendarGrid = document.getElementById('calendar-admin');
+  const monthTitle = document.getElementById('calendar-month-name');
+
+  if (!calendarGrid) return;
+
+  monthTitle.innerText = `${monthNames[currentMonth]} ${currentYear}`;
+  calendarGrid.innerHTML = "";
+
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    const emptyDiv = document.createElement('div');
+    emptyDiv.classList.add('calendar-day', 'empty');
+    calendarGrid.appendChild(emptyDiv);
   }
-  renderMockupSchedule();
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayElement = document.createElement('div');
+    dayElement.classList.add('calendar-day');
+    dayElement.innerText = day;
+    const dateKey = `${currentYear}-${currentMonth + 1}-${day}`;
+
+    // Eventos unificados para Mouse e Touch
+    dayElement.addEventListener('mousedown', (e) => startPress(e, dateKey));
+    dayElement.addEventListener('mouseup', (e) => endPress(e, dateKey));
+    dayElement.addEventListener('touchstart', (e) => {
+      // e.preventDefault(); // Previne zoom/menu de contexto no celular
+      startPress(e, dateKey);
+    }, {passive: false});
+    dayElement.addEventListener('touchend', (e) => endPress(e, dateKey));
+
+    calendarGrid.appendChild(dayElement);
+  }
 }
 
-// Atualizar startPress e endPress para passar o elemento alvo
+// LÓGICA DE PRESSÃO (VIBRAÇÃO E SELEÇÃO)
 function startPress(event, dateKey) {
-  const target = event.currentTarget;
   isLongPress = false;
+  const target = event.currentTarget;
+  
   pressTimer = window.setTimeout(function() {
     isLongPress = true;
+    if (navigator.vibrate) navigator.vibrate(60); 
     handleDaySelection(dateKey, 'half', target);
-    if (navigator.vibrate) navigator.vibrate(50);
   }, 600);
 }
 
@@ -500,143 +533,86 @@ function endPress(event, dateKey) {
   }
 }
 
-let pressTimer;
-let isLongPress = false;
-const scheduleData = {}; // Objeto para salvar o estado de cada dia
+function handleDaySelection(dateKey, type, element) {
+  if (!element) return;
 
-function startPress(event, day) {
-  isLongPress = false;
-  // Se segurar por mais de 600ms, vira "Long Press"
-  pressTimer = window.setTimeout(function() {
-    isLongPress = true;
-    handleDaySelection(day, 'half');
-    
-    // Vibração do celular (se suportado pelo navegador)
-    if (navigator.vibrate) {
-      navigator.vibrate(50); 
-    }
-  }, 600);
-}
-
-function endPress(event, day) {
-  clearTimeout(pressTimer);
-  if (!isLongPress) {
-    handleDaySelection(day, 'off');
-  }
-}
-
-function handleDaySelection(day, type) {
-  const element = event.currentTarget;
-  
   if (type === 'half') {
     element.classList.toggle('day-half');
     element.classList.remove('day-off');
-    scheduleData[day] = element.classList.contains('day-half') ? 'Meio-Período' : null;
+    scheduleData[dateKey] = element.classList.contains('day-half') ? 'Meio-Período' : null;
   } else {
     element.classList.toggle('day-off');
     element.classList.remove('day-half');
-    scheduleData[day] = element.classList.contains('day-off') ? 'Folga' : null;
+    scheduleData[dateKey] = element.classList.contains('day-off') ? 'Folga' : null;
   }
-  
-  // Atualiza o mockup automaticamente
   renderMockupSchedule();
 }
 
-
-
-
-const now = new Date();
-const currentMonth = now.getMonth();
-const currentYear = now.getFullYear();
-
-// Nomes dos meses para o título
-const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
-                    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-
-function generateCalendar() {
-  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const calendarGrid = document.getElementById('calendar-admin');
-  const monthTitle = document.getElementById('calendar-month-name');
-
-  if(!calendarGrid) return;
-
-  monthTitle.innerText = `${monthNames[currentMonth]} ${currentYear}`;
-  calendarGrid.innerHTML = "";
-
-  // 1. Criar espaços vazios para alinhar o dia da semana inicial
-  for (let i = 0; i < firstDayOfMonth; i++) {
-    const emptyDiv = document.createElement('div');
-    emptyDiv.classList.add('calendar-day', 'empty');
-    calendarGrid.appendChild(emptyDiv);
-  }
-
-  // 2. Criar os dias reais
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dayElement = document.createElement('div');
-    dayElement.classList.add('calendar-day');
-    dayElement.innerText = day;
-    
-    // Identificador único (ex: 2024-05-01)
-    const dateKey = `${currentYear}-${currentMonth + 1}-${day}`;
-    
-    // Restaurar estado se já existir no scheduleData
-    if(scheduleData[dateKey] === 'Folga') dayElement.classList.add('day-off');
-    if(scheduleData[dateKey] === 'Meio-Período') dayElement.classList.add('day-half');
-
-    // Eventos de clique e pressão
-    dayElement.onmousedown = (e) => startPress(e, dateKey);
-    dayElement.onmouseup = (e) => endPress(e, dateKey);
-    dayElement.ontouchstart = (e) => startPress(e, dateKey);
-    dayElement.ontouchend = (e) => endPress(e, dateKey);
-
-    calendarGrid.appendChild(dayElement);
-  }
-}
-
-// Chame a função ao carregar a página ou ao abrir a aba
-generateCalendar();
-
-
-
-// Esta função leva os dados para o Mockup na outra aba
+// SINCRONIZAÇÃO COM O MOCKUP
 function renderMockupSchedule() {
   const mockupContainer = document.getElementById('preview-schedule-list');
   if (!mockupContainer) return;
 
-  mockupContainer.innerHTML = ""; // Limpa para atualizar
-  
-  for (const [day, status] of Object.entries(scheduleData)) {
+  mockupContainer.innerHTML = "";
+  let hasData = false;
+
+  for (const [date, status] of Object.entries(scheduleData)) {
     if (status) {
+      hasData = true;
       const item = document.createElement('div');
       item.style.fontSize = "10px";
-      item.style.padding = "2px 5px";
+      item.style.padding = "4px";
       item.style.borderBottom = "1px solid #eee";
-      item.innerHTML = `Dia ${day}: <strong>${status}</strong>`;
+      // Formata a data para ficar mais bonita no mockup
+      const dayLabel = date.split('-')[2];
+      item.innerHTML = `Dia ${dayLabel}: <strong>${status}</strong>`;
       mockupContainer.appendChild(item);
     }
   }
+
+  if (!hasData) {
+    mockupContainer.innerHTML = '<span style="font-size: 9px; color: #999; padding: 5px;">Nenhuma alteração nos horários.</span>';
+  }
 }
 
+// NAVEGAÇÃO DE ABAS
+function openTab(evt, tabId) {
+  const windows = document.getElementsByClassName("tab-window");
+  for (let i = 0; i < windows.length; i++) windows[i].classList.remove("active");
 
+  const buttons = document.getElementsByClassName("tab-button");
+  for (let i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
+
+  document.getElementById(tabId).classList.add("active");
+  evt.currentTarget.classList.add("active");
+}
+
+// EDITOR DE APARÊNCIA
+function openEditor(tipo) {
+  const popover = document.getElementById('editor-popover');
+  const title = document.getElementById('editor-title');
+  const content = document.getElementById('editor-content');
+  popover.style.display = 'block';
+
+  if (tipo === 'titulo') {
+    title.innerText = "Editar Título";
+    content.innerHTML = `<input type="text" class="input-field" placeholder="Novo título..." oninput="updateTitle(this.value)">`;
+  } else if (tipo === 'banner') {
+    title.innerText = "Editar Banner";
+    content.innerHTML = `<input type="color" style="width:100%" onchange="updateBannerColor(this.value)">`;
+  }
+}
 
 function closeEditor() {
   document.getElementById('editor-popover').style.display = 'none';
 }
 
-// Funções de atualização em Tempo Real
-function updateTitle(val) {
-  document.getElementById('preview-title').innerText = val;
-}
+function updateTitle(val) { document.getElementById('preview-title').innerText = val; }
+function updateBannerColor(val) { document.querySelector('.banner').style.background = val; }
 
-function updateTitleColor(val) {
-  document.getElementById('preview-title').style.color = val;
-}
-
-function updateBannerColor(val) {
-  document.querySelector('.banner').style.background = val;
-}
-  
+// INICIALIZAÇÃO
+window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
