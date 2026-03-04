@@ -222,7 +222,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 365px;
+  width: 360px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
@@ -246,6 +246,42 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 
 .popover-body { padding: 15px; }
+
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none; /* Evita selecionar texto ao segurar */
+  transition: 0.2s;
+}
+
+/* Estado: Folga (Clique rápido) */
+.day-off {
+  background-color: #ff4d4d !important;
+  color: white;
+}
+
+/* Estado: Meio Expediente (Clique longo) */
+.day-half {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%) !important;
+  color: white;
+}
+
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -253,7 +289,9 @@ input:checked + .slider:before { transform: translateX(18px); }
     <button class="tab-button" onclick="openTab(event, 'notificacoes')">Avisos</button>
     <button class="tab-button" onclick="openTab(event, 'seguranca')">Senha</button>
     <button class="tab-button" onclick="openTab(event, 'ajuda')">Ajuda</button>
+    <button class="tab-button" onclick="openTab(event, 'horarios')">Horários</button> 
     <button class="tab-button" onclick="openTab(event, 'aparencia')">Aparência</button>
+    
   </nav>
 
   <main class="tab-content-area">
@@ -302,7 +340,16 @@ input:checked + .slider:before { transform: translateX(18px); }
     <button class="action-card danger">Encerrar todas as sessões</button>
   </div>
 
-
+  <div id="horarios" class="tab-window">
+    <h3>Configurar Horários</h3>
+    <p class="instruction-text">Toque rápido para <b>Folga</b> (Vermelho). Segure para <b>Meio Expediente</b> (Degradê).</p>
+    
+    <div class="calendar-grid" id="calendar-admin">
+      <div class="calendar-day" onmousedown="startPress(event, 1)" onmouseup="endPress(event, 1)" ontouchstart="startPress(event, 1)" ontouchend="endPress(event, 1)">1</div>
+      <div class="calendar-day" onmousedown="startPress(event, 2)" onmouseup="endPress(event, 2)">2</div>
+      <div class="calendar-day" onmousedown="startPress(event, 3)" onmouseup="endPress(event, 3)">3</div>
+      </div>
+  </div>
 
   <div id="aparencia" class="tab-window">
     <h3>Aparência</h3>
@@ -324,6 +371,12 @@ input:checked + .slider:before { transform: translateX(18px); }
 
         <div class="editable-element main-button" onclick="openEditor('botao')">
           <button id="preview-button">Agendar Agora</button>
+        </div>
+         <div class="editable-element schedule-preview" onclick="openEditor('horarios-view')">
+          <p style="font-size: 10px; font-weight: bold; margin: 5px;">Status de Horários:</p>
+          <div id="preview-schedule-list">
+            <span style="font-size: 9px; color: #999; padding: 5px;">Nenhuma alteração nos horários.</span>
+          </div>
         </div>
 
       </div>
@@ -385,6 +438,70 @@ function openEditor(tipo) {
   }
 }
 
+
+let pressTimer;
+let isLongPress = false;
+const scheduleData = {}; // Objeto para salvar o estado de cada dia
+
+function startPress(event, day) {
+  isLongPress = false;
+  // Se segurar por mais de 600ms, vira "Long Press"
+  pressTimer = window.setTimeout(function() {
+    isLongPress = true;
+    handleDaySelection(day, 'half');
+    
+    // Vibração do celular (se suportado pelo navegador)
+    if (navigator.vibrate) {
+      navigator.vibrate(50); 
+    }
+  }, 600);
+}
+
+function endPress(event, day) {
+  clearTimeout(pressTimer);
+  if (!isLongPress) {
+    handleDaySelection(day, 'off');
+  }
+}
+
+function handleDaySelection(day, type) {
+  const element = event.currentTarget;
+  
+  if (type === 'half') {
+    element.classList.toggle('day-half');
+    element.classList.remove('day-off');
+    scheduleData[day] = element.classList.contains('day-half') ? 'Meio-Período' : null;
+  } else {
+    element.classList.toggle('day-off');
+    element.classList.remove('day-half');
+    scheduleData[day] = element.classList.contains('day-off') ? 'Folga' : null;
+  }
+  
+  // Atualiza o mockup automaticamente
+  renderMockupSchedule();
+}
+
+// Esta função leva os dados para o Mockup na outra aba
+function renderMockupSchedule() {
+  const mockupContainer = document.getElementById('preview-schedule-list');
+  if (!mockupContainer) return;
+
+  mockupContainer.innerHTML = ""; // Limpa para atualizar
+  
+  for (const [day, status] of Object.entries(scheduleData)) {
+    if (status) {
+      const item = document.createElement('div');
+      item.style.fontSize = "10px";
+      item.style.padding = "2px 5px";
+      item.style.borderBottom = "1px solid #eee";
+      item.innerHTML = `Dia ${day}: <strong>${status}</strong>`;
+      mockupContainer.appendChild(item);
+    }
+  }
+}
+
+
+
 function closeEditor() {
   document.getElementById('editor-popover').style.display = 'none';
 }
@@ -404,8 +521,8 @@ function updateBannerColor(val) {
   
 </script>
 </body>
-
 </html>
+
 
 
 
