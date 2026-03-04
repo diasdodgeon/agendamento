@@ -222,7 +222,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 360px;
+  width: 365px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
@@ -247,42 +247,6 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 .popover-body { padding: 15px; }
 
-
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  background: white;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.calendar-day {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f0f0f0;
-  border-radius: 5px;
-  font-size: 12px;
-  cursor: pointer;
-  user-select: none; /* Evita selecionar texto ao segurar */
-  transition: 0.2s;
-}
-
-/* Estado: Folga (Clique rápido) */
-.day-off {
-  background-color: #ff4d4d !important;
-  color: white;
-}
-
-/* Estado: Meio Expediente (Clique longo) */
-.day-half {
-  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%) !important;
-  color: white;
-}
-
-
 .weekdays-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -304,8 +268,7 @@ input:checked + .slider:before { transform: translateX(18px); }
   overflow-y: auto;
   border-top: 1px dashed #ddd;
   margin-top: 10px;
-}
-
+}   
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -313,9 +276,8 @@ input:checked + .slider:before { transform: translateX(18px); }
     <button class="tab-button" onclick="openTab(event, 'notificacoes')">Avisos</button>
     <button class="tab-button" onclick="openTab(event, 'seguranca')">Senha</button>
     <button class="tab-button" onclick="openTab(event, 'ajuda')">Ajuda</button>
-    <button class="tab-button" onclick="openTab(event, 'horarios')">Horários</button> 
+    <button class="tab-button" onclick="openTab(event, 'horarios')">horarios</button>
     <button class="tab-button" onclick="openTab(event, 'aparencia')">Aparência</button>
-    
   </nav>
 
   <main class="tab-content-area">
@@ -363,9 +325,7 @@ input:checked + .slider:before { transform: translateX(18px); }
     <button class="action-card">Ativar 2FA (Dois Fatores)</button>
     <button class="action-card danger">Encerrar todas as sessões</button>
   </div>
-
   <div id="horarios" class="tab-window">
-
     <h3 id="calendar-month-name">Mês Atual</h3>
     <p class="instruction-text">Toque rápido: Folga | Segure: Meio Expediente</p>
     
@@ -377,9 +337,6 @@ input:checked + .slider:before { transform: translateX(18px); }
     </div>
   </div>
 
-
-    
-  
 
   <div id="aparencia" class="tab-window">
     <h3>Aparência</h3>
@@ -401,12 +358,6 @@ input:checked + .slider:before { transform: translateX(18px); }
 
         <div class="editable-element main-button" onclick="openEditor('botao')">
           <button id="preview-button">Agendar Agora</button>
-        </div>
-         <div class="editable-element schedule-preview" onclick="openEditor('horarios-view')">
-          <p style="font-size: 10px; font-weight: bold; margin: 5px;">Status de Horários:</p>
-          <div id="preview-schedule-list">
-            <span style="font-size: 9px; color: #999; padding: 5px;">Nenhuma alteração nos horários.</span>
-          </div>
         </div>
 
       </div>
@@ -603,16 +554,33 @@ function openEditor(tipo) {
   }
 }
 
+
+
+
+
+
+  
 function closeEditor() {
   document.getElementById('editor-popover').style.display = 'none';
 }
 
-function updateTitle(val) { document.getElementById('preview-title').innerText = val; }
-function updateBannerColor(val) { document.querySelector('.banner').style.background = val; }
+// Funções de atualização em Tempo Real
+function updateTitle(val) {
+  document.getElementById('preview-title').innerText = val;
+}
+
+function updateTitleColor(val) {
+  document.getElementById('preview-title').style.color = val;
+}
+
+function updateBannerColor(val) {
+  document.querySelector('.banner').style.background = val;
+}
 
 // INICIALIZAÇÃO
 window.onload = generateCalendar;
+  
 </script>
 </body>
-</html>
 
+</html>
