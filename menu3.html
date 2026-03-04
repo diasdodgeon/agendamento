@@ -555,29 +555,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 </main>
 </div>
 <script type="text/javascript">
-  function calculateWorkMinutes() {
-    // 1. Pega os valores dos inputs (Ex: "08:00", "12:00", etc)
-    const open = document.getElementById('open-time').value;
-    const close = document.getElementById('close-time').value;
-    const breakStart = document.getElementById('break-start').value;
-    const breakEnd = document.getElementById('break-end').value;
-
-    // 2. Converte tudo para minutos (ajuste conforme sua lógica de conversão)
-    const totalMinutes = timeToMinutes(close) - timeToMinutes(open);
-    const breakMinutes = timeToMinutes(breakEnd) - timeToMinutes(breakStart);
-    
-    // O RESULTADO REAL:
-    const minutosLiquidos = totalMinutes - breakMinutes;
-
-    // 3. ATUALIZA O OBJETO GLOBAL
-    configuracaoUsuario.minutosDisponiveis = minutosLiquidos;
-
-    // 4. Exibe no painel de resumo (como você já faz)
-    document.getElementById('work-summary').innerHTML = `Total disponível: ${minutosLiquidos} minutos.`;
-
-    // 5. GATILHO: Avisa o calculador de vagas que o tempo mudou!
-    calcularTempoVaga();
-  }
+  
 
   
   // Inicializar o cálculo assim que a página carregar
@@ -947,11 +925,17 @@ function timeToMinutes(timeString) {
   return (hours * 60) + minutes;
 }
 
+
+  
+
+  
 function calculateWorkMinutes() {
   const openTime = document.getElementById('time-open').value;
   const breakTime = document.getElementById('time-break').value;
   const closeTime = document.getElementById('time-close').value;
   const summaryDiv = document.getElementById('work-summary');
+  const breakStart = document.getElementById('break-start').value;
+  const breakEnd = document.getElementById('break-end').value;
 
   // 1. Converter tudo para minutos
   const minOpen = timeToMinutes(openTime);
@@ -989,6 +973,23 @@ function calculateWorkMinutes() {
   
   // Opcional: Atualizar algo no mockup se desejar
   console.log("Minutos disponíveis atualizados:", totalNet);
+
+  // 2. Converte tudo para minutos (ajuste conforme sua lógica de conversão)
+    const totalMinutes = timeToMinutes(close) - timeToMinutes(open);
+    const breakMinutes = timeToMinutes(breakEnd) - timeToMinutes(breakStart);
+    
+    // O RESULTADO REAL:
+    const minutosLiquidos = totalMinutes - breakMinutes;
+
+    // 3. ATUALIZA O OBJETO GLOBAL
+    configuracaoUsuario.minutosDisponiveis = minutosLiquidos;
+
+    // 4. Exibe no painel de resumo (como você já faz)
+    document.getElementById('work-summary').innerHTML = `Total disponível: ${minutosLiquidos} minutos.`;
+
+    // 5. GATILHO: Avisa o calculador de vagas que o tempo mudou!
+    calcularTempoVaga();
+  
 }
 
 
@@ -998,6 +999,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
