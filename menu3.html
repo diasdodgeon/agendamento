@@ -280,7 +280,28 @@ input:checked + .slider:before { transform: translateX(18px); }
   background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%) !important;
   color: white;
 }
-    
+.weekdays-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 10px;
+  font-weight: bold;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.calendar-day.empty {
+  background: transparent;
+  cursor: default;
+}
+
+/* Melhorando a visualização no Mockup */
+#preview-schedule-list {
+  max-height: 150px;
+  overflow-y: auto;
+  border-top: 1px dashed #ddd;
+  margin-top: 10px;
+}
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -611,6 +632,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
