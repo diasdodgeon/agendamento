@@ -302,6 +302,44 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-top: 1px dashed #ddd;
   margin-top: 10px;
 }
+
+/* feriados e setas */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.nav-btn {
+  background: #eee;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Destaque para Feriados */
+.calendar-day.is-holiday {
+  border: 2px solid #ff9800; /* Borda laranja para feriado */
+  position: relative;
+}
+
+.calendar-day.is-holiday::after {
+  content: 'H'; /* Pequeno indicador de Holiday/Feriado */
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 7px;
+  color: #ff9800;
+  font-weight: bold;
+}
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -363,6 +401,11 @@ input:checked + .slider:before { transform: translateX(18px); }
     <p class="instruction-text">Toque rápido: Folga | Segure: Meio Expediente</p>
     
     <div class="calendar-wrapper">
+      <div class="calendar-header">
+        <button class="nav-btn" onclick="changeMonth(-1)">&#10094;</button>
+        <h3 id="calendar-month-name">Mês Atual</h3>
+        <button class="nav-btn" onclick="changeMonth(1)">&#10095;</button>
+      </div>
       <div class="weekdays-grid">
         <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sab</div>
       </div>
@@ -431,16 +474,39 @@ input:checked + .slider:before { transform: translateX(18px); }
   const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
   
   // GERAR CALENDÁRIO REAL
+  // VARIÁVEIS DE CONTROLE DE DATA
+  let viewDate = new Date(); // Data que o usuário está vendo no momento
+  const realDate = new Date(); // Data de "hoje" (para travar o limite)
+  
+  // CADASTRO DE FERIADOS (Exemplo: 2026)
+  const holidays = {
+    "2026-1-1": "Ano Novo",
+    "2026-4-3": "Sexta-feira Santa",
+    "2026-4-21": "Tiradentes",
+    "2026-5-1": "Dia do Trabalho",
+    "2026-9-7": "Independência",
+    "2026-10-12": "Nossa Sra Aparecida",
+    "2026-11-2": "Finados",
+    "2026-11-15": "Proclamação da República",
+    "2026-12-25": "Natal"
+  };
+  
   function generateCalendar() {
-    const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const viewMonth = viewDate.getMonth();
+    const viewYear = viewDate.getFullYear();
+    
+    const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     const calendarGrid = document.getElementById('calendar-admin');
     const monthTitle = document.getElementById('calendar-month-name');
   
     if (!calendarGrid) return;
   
-    monthTitle.innerText = `${monthNames[currentMonth]} ${currentYear}`;
+    monthTitle.innerText = `${monthNames[viewMonth]} ${viewYear}`;
     calendarGrid.innerHTML = "";
+  
+    // Controle de bloqueio das setas (Limite de 2 meses à frente)
+    updateNavButtons();
   
     for (let i = 0; i < firstDayOfMonth; i++) {
       const emptyDiv = document.createElement('div');
@@ -452,25 +518,46 @@ input:checked + .slider:before { transform: translateX(18px); }
       const dayElement = document.createElement('div');
       dayElement.classList.add('calendar-day');
       dayElement.innerText = day;
-      const dateKey = `${currentYear}-${currentMonth + 1}-${day}`;
+      
+      // Identificador único (YYYY-MM-DD)
+      const dateKey = `${viewYear}-${viewMonth + 1}-${day}`;
+      
+      // 1. Verificar se é feriado
+      if (holidays[dateKey]) {
+        dayElement.classList.add('is-holiday');
+        dayElement.title = holidays[dateKey]; // Mostra o nome do feriado ao passar o mouse
+      }
   
-      // EVENTOS DE MOUSE
+      // 2. Restaurar estado (Cores) se houver dados salvos
+      if (scheduleData[dateKey] === 'Folga') dayElement.classList.add('day-off');
+      if (scheduleData[dateKey] === 'Meio-Período') dayElement.classList.add('day-half');
+  
+      // 3. Eventos (Mouse e Toque)
+      dayElement.addEventListener('touchstart', (e) => { e.preventDefault(); startPress(e, dateKey); }, {passive: false});
+      dayElement.addEventListener('touchend', (e) => { e.preventDefault(); endPress(e, dateKey); }, {passive: false});
       dayElement.addEventListener('mousedown', (e) => startPress(e, dateKey));
       dayElement.addEventListener('mouseup', (e) => endPress(e, dateKey));
   
-      // EVENTOS DE TOQUE (CELULAR)
-      dayElement.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // ESSENCIAL: Impede que o navegador simule um clique de mouse
-        startPress(e, dateKey);
-      }, { passive: false });
-  
-      dayElement.addEventListener('touchend', (e) => {
-        e.preventDefault(); // Impede o clique fantasma
-        endPress(e, dateKey);
-      }, { passive: false });
-  
       calendarGrid.appendChild(dayElement);
     }
+  }
+  
+  // MUDAR DE MÊS
+  function changeMonth(direction) {
+    // Altera o mês da viewDate
+    viewDate.setMonth(viewDate.getMonth() + direction);
+    generateCalendar();
+  }
+  
+  // TRAVAR NAVEGAÇÃO
+  function updateNavButtons() {
+    const btns = document.querySelectorAll('.nav-btn');
+    const diff = (viewDate.getFullYear() - realDate.getFullYear()) * 12 + (viewDate.getMonth() - realDate.getMonth());
+  
+    // Desativa "Voltar" se estiver no mês atual
+    btns[0].disabled = (diff <= 0);
+    // Desativa "Avançar" se estiver 2 meses à frente
+    btns[1].disabled = (diff >= 2);
   }
   
   // LÓGICA DE PRESSÃO
@@ -653,6 +740,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
