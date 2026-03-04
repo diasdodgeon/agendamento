@@ -479,6 +479,29 @@ input:checked + .slider:before { transform: translateX(18px); }
     <label><strong>*Obrigatório</strong> - Horário de encerramento</label>
     <input type="time" id="time-close" class="input-field" value="17:00" onchange="calculateWorkMinutes()">
   </div>
+  <div class="form-group">
+    <label>Quantidade de vagas diárias: *</label>
+    <div class="counter-container">
+      <button type="button" onclick="changeSlots(-1)">-</button>
+      <input type="number" id="vagas-diarias" value="20" readonly>
+      <button type="button" onclick="changeSlots(1)">+</button>
+    </div>
+  </div>
+  
+  <div class="form-group checkbox-group">
+    <input type="checkbox" id="check-agendamento" onchange="toggleScheduling()">
+    <label for="check-agendamento">Definir horários de agendamento</label>
+  </div>
+  
+  <div id="painel-agendamento" style="display: none; margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 8px;">
+    <small style="color: #666; display: block; margin-bottom: 5px;">
+      Tempo de atendimento é proporcional ao tempo de trabalho e quantidade de vagas.
+    </small>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <strong>Tempo disponível para clientes:</strong>
+      <span id="timer-vaga" style="font-family: monospace; font-size: 1.2rem; color: #2ecc71;">00:30</span>
+    </div>
+  </div>
 
   <div id="work-summary" class="calculation-panel">
     Carregando cálculos...
@@ -534,6 +557,54 @@ input:checked + .slider:before { transform: translateX(18px); }
 <script type="text/javascript">
   // Inicializar o cálculo assim que a página carregar
   window.addEventListener('DOMContentLoaded', calculateWorkMinutes);
+
+  // Objeto Global para guardar os dados e serem usados na aba 'Aparência'
+  let configuracaoUsuario = {
+      minutosDisponiveis: 600, // Esse valor vem do seu cálculo anterior de trabalho
+      vagas: 20,
+      usarAgendamento: false,
+      tempoPorVaga: 30
+  };
+  
+  // Função para alterar o contador de vagas
+  function changeSlots(val) {
+      let input = document.getElementById('vagas-diarias');
+      let novoValor = parseInt(input.value) + val;
+      
+      if (novoValor > 0) {
+          input.value = novoValor;
+          configuracaoUsuario.vagas = novoValor;
+          calcularTempoVaga();
+      }
+  }
+  
+  // Função para mostrar/esconder o painel e atualizar o estado
+  function toggleScheduling() {
+      const checkbox = document.getElementById('check-agendamento');
+      const painel = document.getElementById('painel-agendamento');
+      
+      configuracaoUsuario.usarAgendamento = checkbox.checked;
+      painel.style.display = checkbox.checked ? 'block' : 'none';
+      
+      if(checkbox.checked) calcularTempoVaga();
+  }
+  
+  // A fórmula mágica
+  function calcularTempoVaga() {
+      // Cálculo: Minutos totais / Vagas
+      let minutosTotais = configuracaoUsuario.minutosDisponiveis;
+      let vagas = configuracaoUsuario.vagas;
+      
+      let resultado = Math.floor(minutosTotais / vagas);
+      configuracaoUsuario.tempoPorVaga = resultado;
+  
+      // Formatação para 00:00
+      let horas = Math.floor(resultado / 60);
+      let minutos = resultado % 60;
+      let display = `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+      
+      document.getElementById('timer-vaga').innerText = display;
+  }
 
   // VARIÁVEIS GLOBAIS
   let pressTimer;
@@ -896,6 +967,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
