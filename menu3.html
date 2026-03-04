@@ -560,7 +560,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 
   // Objeto Global para guardar os dados e serem usados na aba 'Aparência'
   let configuracaoUsuario = {
-      minutosDisponiveis: 600, // Esse valor vem do seu cálculo anterior de trabalho
+      minutosDisponiveis: calculateWorkMinutes, // Esse valor vem do seu cálculo anterior de trabalho
       vagas: 20,
       usarAgendamento: false,
       tempoPorVaga: 30
@@ -967,6 +967,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
