@@ -576,19 +576,23 @@ input::-webkit-inner-spin-button {
       <button type="button" onclick="changeSlots(1)">+</button>
     </div>
   </div>
-  
+
+   <div id="work-summary" class="calculation-panel">
+      Carregando cálculos...
+    </div>
+      
   <div class="form-group checkbox-group">
     <label for="check-agendamento">Definir horários de agendamento?</label>
-    <input type="checkbox" id="check-agendamento" onchange="toggleScheduling()" <label>se marcada esta opçao ativa o atendimento por horarios</label>
+    <input type="checkbox" id="check-agendamento" onchange="toggleScheduling()" <label>se marcada esta opçao ativa o atendimento por horários, ex:07:00, 07:40, 08:20, etc...</label>
     
   </div>
   
   <div id="painel-agendamento" style="display: none; margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 8px;">
     <small style="color: #666; display: block; margin-bottom: 5px;">
-      Tempo de atendimento, é proporcional ao tempo de trabalho, dividido pela quantidade de vagas.
+      Tempo de cada atendimento, é igual ao tempo de disponível para atendimento diario, dividido pela quantidade de vagas.
     </small>
     <div style="display: flex; align-items: center; gap: 10px;">
-      <strong>Tempo disponível para clientes:</strong>
+      <strong>Tempo de cada atendimento:</strong>
       <span id="timer-vaga" style="font-family: monospace; font-size: 1.2rem; color: #2ecc71;">00:30</span>
     </div>
   </div>
@@ -1057,7 +1061,7 @@ function calculateWorkMinutes() {
   summaryDiv.innerHTML = `
     🕒 <b>Expediente Total:</b> ${Math.floor(totalGross/60)}h (${totalGross} minutos)<br>
     ☕ <b>Intervalo:</b> ${minBreak} minutos<br>
-    ✅ <b>Tempo Disponível para Clientes:</b> <b>${totalNet} minutos</b>
+    ⏳ <b>Tempo disponível para atendimento diário:</b> <b>${totalNet} minutos</b>
    
   `;
   
@@ -1087,6 +1091,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
