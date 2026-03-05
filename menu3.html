@@ -474,6 +474,53 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.actions-container {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+  text-align: right;
+}
+
+#btn-salvar-horarios {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+}
+
+#btn-salvar-horarios:hover {
+  background-color: #4338ca;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+}
+
+#btn-salvar-horarios:active {
+  transform: translateY(0);
+}
+
+.save-feedback {
+  display: none;
+  color: #059669;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  font-weight: 500;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
     
 </style>
 <div class="mobile-menu-container">
@@ -602,7 +649,12 @@ input::-webkit-inner-spin-button {
       <span id="timer-vaga" style="font-family: monospace; font-size: 1.2rem; color: #2ecc71;">00:30</span>
     </div>
   </div>
-  
+  <div class="actions-container">
+    <button type="button" id="btn-salvar-horarios" onclick="salvarConfiguracoes()">
+      <span>💾</span> Salvar Configurações
+    </button>
+    <div id="save-feedback" class="save-feedback">Configurações salvas com sucesso!</div>
+  </div>
 </div>
   </div>
 
@@ -1087,7 +1139,42 @@ function calculateWorkMinutes() {
   calcularTempoVaga();
  
 }
+function salvarConfiguracoes() {
+  // 1. Forçar uma última atualização dos cálculos antes de salvar
+  calculateWorkMinutes(); 
+  calcularTempoVaga();
 
+  // 2. Capturar os estados dos elementos de interface
+  const isAgendamentoAtivo = document.getElementById('check-agendamento').checked;
+  const qtdVagas = parseInt(document.getElementById('vagas-diarias').value);
+  
+  // 3. Consolidar no Objeto Global
+  // Note que 'availableMinutes' e 'tempoPorVaga' já foram inseridos pelas funções de cálculo
+  scheduleData.config = {
+    ...scheduleData.config, // Mantém o que já foi calculado (open, close, availableMinutes)
+    vagas: qtdVagas,
+    usarAgendamento: isAgendamentoAtivo,
+    // O tempoPorVaga é crucial para gerar a grade de horários depois
+    tempoPorVaga: scheduleData.config.tempoPorVaga 
+  };
+
+  // 4. Feedback visual para o usuário
+  const feedback = document.getElementById('save-feedback');
+  const btn = document.getElementById('btn-salvar-horarios');
+  
+  feedback.style.display = 'block';
+  btn.style.backgroundColor = '#059669'; // Muda para verde temporariamente
+  btn.innerHTML = '<span>✅</span> Salvo!';
+
+  console.log("Dados prontos para o Mockup:", scheduleData.config);
+
+  // Reverter o botão após 2 segundos
+  setTimeout(() => {
+    feedback.style.display = 'none';
+    btn.style.backgroundColor = '#4f46e5';
+    btn.innerHTML = '<span>💾</span> Salvar Configurações';
+  }, 2500);
+}
 
 // INICIALIZAÇÃO
 window.onload = generateCalendar;
@@ -1095,6 +1182,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
