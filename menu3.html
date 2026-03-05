@@ -569,7 +569,7 @@ input::-webkit-inner-spin-button {
   </div>
   <div class="form-group">
     <label>Quantidade de vagas diárias: *</label>
-    <h3>quantos clientes voçe deseja atender, por dia?</h3>
+    <h3>Quantos clientes voçê consegue atender por dia?</h3>
     <div class="counter-container">
       <button type="button" onclick="changeSlots(-1)">-</button>
       <input type="number" id="vagas-diarias" value="20" readonly>
@@ -1058,7 +1058,7 @@ function calculateWorkMinutes() {
   summaryDiv.style.borderColor = "#4f46e5";
   summaryDiv.innerHTML = `
     🕒 <b>Expediente Total:</b> ${Math.floor(totalGross/60)}h (${totalGross} minutos)<br>
-    ☕ <b>Intervalo:</b> ${minBreak} minutos<br>
+    🍽️ <b>Intervalo:</b> ${minBreak} minutos<br>
     ⏳ <b>Tempo total de atendimento:</b> <b>${totalNet} minutos</b>
    
   `;
@@ -1089,6 +1089,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
