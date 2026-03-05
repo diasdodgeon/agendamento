@@ -578,14 +578,14 @@ input::-webkit-inner-spin-button {
   </div>
   
   <div class="form-group checkbox-group">
-    <label for="check-agendamento">Definir horários de agendamento</label>
-    <input type="checkbox" id="check-agendamento" onchange="toggleScheduling()" label="se marcada ativa o agendamento por horarios">
+    <label for="check-agendamento">Definir horários de agendamento?</label>
+    <input type="checkbox" id="check-agendamento" onchange="toggleScheduling()" <label>se marcada esta opçao ativa o atendimento por horarios</label>
     
   </div>
   
   <div id="painel-agendamento" style="display: none; margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 8px;">
     <small style="color: #666; display: block; margin-bottom: 5px;">
-      Tempo de atendimento é proporcional ao tempo de trabalho e quantidade de vagas.
+      Tempo de atendimento, é proporcional ao tempo de trabalho, dividido pela quantidade de vagas.
     </small>
     <div style="display: flex; align-items: center; gap: 10px;">
       <strong>Tempo disponível para clientes:</strong>
@@ -1087,6 +1087,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
