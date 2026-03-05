@@ -557,6 +557,9 @@ input::-webkit-inner-spin-button {
     </div>
     <div class="work-config-container">
   <div class="setting-group">
+    <div class="form-group">
+      <label>Defina, seus horarios de funcionamento: </label>
+    </div>
     <label><strong>*Obrigatório</strong> - Horário de abertura</label>
     <input type="time" id="time-open" class="input-field" value="07:00" onchange="calculateWorkMinutes()">
   </div>
@@ -586,7 +589,7 @@ input::-webkit-inner-spin-button {
       
   <div class="form-group checkbox-group">
     <label for="check-agendamento">Definir horários de agendamento?</label>
-    <input type="checkbox" id="check-agendamento" onchange="toggleScheduling()" <label>se marcada esta opçao ativa o agendamento diário por horários, ex:07:00, 07:40, 08:20, etc...</label>
+    <input type="checkbox" id="check-agendamento" onchange="toggleScheduling()" <label>Se marcada esta opçâo ativa o agendamento diário por horários, ex:07:00, 07:40, 08:20...<br> Se não, o atendimento será realizado por ordem de chegada.</label>
     
   </div>
   
@@ -1092,6 +1095,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
