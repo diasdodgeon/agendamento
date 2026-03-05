@@ -1050,17 +1050,14 @@ function calculateWorkMinutes() {
   // 3. Cálculo Líquido (Subtraindo intervalo)
   const totalNet = totalGross - minBreak;
 
-   // --- LINHA NOVA: Sempre que calcular o tempo de trabalho, recalcula o tempo por vaga ---
-  calcularTempoVaga();
-
+   
   // 4. Exibir para o usuário (e deixar pronto para o sistema)
   summaryDiv.style.borderColor = "#4f46e5";
   summaryDiv.innerHTML = `
     🕒 <b>Expediente Total:</b> ${Math.floor(totalGross/60)}h (${totalGross} minutos)<br>
     ☕ <b>Intervalo:</b> ${minBreak} minutos<br>
     ✅ <b>Tempo Disponível para Clientes:</b> <b>${totalNet} minutos</b>
-     ✅ <b>quantidade de vagas diarias:</b> <b>${qtdVagas} minutos</b>
-    ✅ <b>duraçao de cada atendimento:</b> <b>${tempoPorVaga} minutos</b>
+   
   `;
   
 
@@ -1077,6 +1074,8 @@ function calculateWorkMinutes() {
   // Opcional: Atualizar algo no mockup se desejar
   console.log("Minutos disponíveis atualizados:", totalNet);
 
+  // --- LINHA NOVA: Sempre que calcular o tempo de trabalho, recalcula o tempo por vaga ---
+  calcularTempoVaga();
  
 }
 
@@ -1087,6 +1086,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
