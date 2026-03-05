@@ -532,8 +532,10 @@ input::-webkit-inner-spin-button {
     <button class="action-card danger">Encerrar todas as sessões</button>
   </div>
   <div id="horarios" class="tab-window">
-    
-    <p class="instruction-text">Toque rápido: Folga | Segure: Meio Expediente</p>
+    <div class="form-group">
+      <label>Marque no calendário, seu dias de folga: </label>
+    </div>
+    <p class="instruction-text">Click simples: Folga | Click/Segura: Meio Expediente</p>
     
     <div class="calendar-wrapper">
       <div class="calendar-header">
@@ -569,10 +571,10 @@ input::-webkit-inner-spin-button {
   </div>
   <div class="form-group">
     <label>Quantidade de vagas diárias: *</label>
-    <h3>Quantos clientes voçê consegue atender por dia?</h3>
+    <h3>Quantos clientes voçê pode atender, por dia?</h3>
     <div class="counter-container">
       <button type="button" onclick="changeSlots(-1)">-</button>
-      <input type="number" id="vagas-diarias" value="20" readonly>
+      <input type="number" id="vagas-diarias" value="10" readonly>
       <button type="button" onclick="changeSlots(1)">+</button>
     </div>
   </div>
@@ -1089,6 +1091,7 @@ window.onload = generateCalendar;
 </script>
 </body>
 </html>
+
 
 
 
