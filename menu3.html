@@ -695,6 +695,69 @@ input::-webkit-inner-spin-button {
   color: white;
 }
 
+/* Destaque do dia selecionado no clique simples */
+.calendar-day.selected-preview {
+    background-color: var(--primary-color, #4f46e5) !important;
+    color: white !important;
+    border-radius: 8px;
+    transform: scale(1.1);
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* A Janela de Informações dentro do Grid */
+.info-drawer {
+    grid-column: 1 / 8; /* Ocupa a largura total de 7 dias */
+    background: #f9fafb;
+    border-top: 1px solid #eee;
+    padding: 15px;
+    margin-top: 5px;
+    animation: expandDrawer 0.3s ease-out;
+    border-radius: 0 0 15px 15px;
+}
+
+@keyframes expandDrawer {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 300px; }
+}
+
+.info-drawer h4 { margin: 0 0 10px 0; font-size: 14px; color: #333; }
+.info-drawer p { margin: 5px 0; font-size: 13px; color: #666; }
+
+/* Temas Predefinidos */
+
+/* Tema 1: Moderno (Cinza e Verde) */
+.calendar-wrapper.modern-dark {
+  --bg-calendar: #f3f4f6;
+  --color-off: #10b981; /* Verde */
+  --bg-off: #ecfdf5;
+  --color-half: #059669;
+  --bg-half: linear-gradient(135deg, #ecfdf5 50%, #f3f4f6 50%);
+}
+
+/* Tema 2: Clássico (Branco e Vermelho) */
+.calendar-wrapper.classic-red {
+  --bg-calendar: #ffffff;
+  --color-off: #ef4444; /* Vermelho */
+  --bg-off: #fee2e2;
+  --color-half: #dc2626;
+  --bg-half: linear-gradient(135deg, #fee2e2 50%, #ffffff 50%);
+}
+
+/* Aplicando as variáveis aos elementos */
+.calendar-wrapper.preview-mode { background-color: var(--bg-calendar); }
+
+.preview-mode .calendar-day.day-off {
+  background-color: var(--bg-off) !important;
+  color: var(--color-off) !important;
+}
+
+.preview-mode .calendar-day.day-half {
+  background: var(--bg-half) !important;
+  border: 2px solid var(--color-half) !important;
+}
+
+
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -846,50 +909,60 @@ input::-webkit-inner-spin-button {
     <div class="phone-mockup">
       <div class="phone-screen">
         
-        <div class="editable-element banner" onclick="openEditor('banner')">
-          <span>Clique para alterar o Banner</span>
+        <div class="editable-element banner" 
+             onmousedown="handlePressStart(event, 'banner')" 
+             onmouseup="handlePressEnd(event, 'banner')"
+             ontouchstart="handlePressStart(event, 'banner')" 
+             ontouchend="handlePressEnd(event, 'banner')">
+          Clique para alterar o Banner
         </div>
 
-        <div class="editable-element title" onclick="openEditor('titulo')">
-          <h2 id="preview-title">Título da sua Página</h2>
-        </div>
-
-        <div class="editable-element main-button" onclick="openEditor('botao')">
-          <button id="preview-button">Agendar Agora</button>
+        <div class="editable-element title" 
+             onmousedown="handlePressStart(event, 'titulo')" 
+             onmouseup="handlePressEnd(event, 'titulo')"
+             ontouchstart="handlePressStart(event, 'titulo')" 
+             ontouchend="handlePressEnd(event, 'titulo')">
+          <h2 id="mockup-title-text">Título da sua Página</h2>
         </div>
 
        
 
 
         
-        <div class="calendar-wrapper preview-mode editable-element" 
+        <div id="calendar-wrapper-mockup" 
+           class="calendar-wrapper preview-mode editable-element" 
            onmousedown="handlePressStart(event, 'cores')" 
            onmouseup="handlePressEnd(event, 'cores')"
            ontouchstart="handlePressStart(event, 'cores')" 
            ontouchend="handlePressEnd(event, 'cores')">
-           </div>
-          <div class="calendar-header">
-            <button class="nav-btn" style="opacity: 0.5; cursor: default;">&#10094;</button>
-            <h3 id="calendar-month-preview">Mês Atual</h3> <button class="nav-btn" style="opacity: 0.5; cursor: default;">&#10095;</button>
-          </div>
-          
-          <div class="weekdays-grid">
-            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sab</div>
-          </div>
-          
-          <div class="calendar-grid" id="calendar-preview">
-            </div>
-          <div id="holiday-list-preview" class="holiday-info-box">
+
+        <div class="calendar-header">
+          <button class="nav-btn" style="opacity: 0.5; cursor: default;">&#10094;</button>
+          <h3 id="calendar-month-preview">Mês Atual</h3> 
+          <button class="nav-btn" style="opacity: 0.5; cursor: default;">&#10095;</button>
         </div>
+        
+        <div class="weekdays-grid">
+          <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sab</div>
+        </div>
+        
+        <div class="calendar-grid" id="calendar-preview">
+          </div>
+
+        <div id="holiday-list-preview" class="holiday-info-box" style="display: none;">
+        </div>
+
         <div id="booking-modal" class="booking-modal">
           <div class="booking-header">
-            <h3 id="booking-date-title" style="margin:0; font-size: 16px;">Dia 23 - Segunda</h3>
+            <h3 id="booking-date-title" style="margin:0; font-size: 16px;">Detalhes</h3>
             <button class="close-modal-btn" onclick="closeBooking()">✕</button>
           </div>
           <div id="booking-body">
             </div>
         </div>
-        </div>
+
+      </div> 
+
 
         
         
@@ -1037,6 +1110,8 @@ input::-webkit-inner-spin-button {
     "2026-12-25": "Natal"
   };
   
+    
+
     function generateCalendar() {
     const viewMonth = viewDate.getMonth();
     const viewYear = viewDate.getFullYear();
@@ -1143,6 +1218,9 @@ input::-webkit-inner-spin-button {
     renderHolidaysText();
   }
   
+
+
+
   function abrirJanelaAgendamento(dia, dateKey) {
     const modal = document.getElementById('booking-modal');
     const body = document.getElementById('booking-body');
@@ -1286,75 +1364,222 @@ input::-webkit-inner-spin-button {
     }
   }
   
-  function generatePreviewCalendar() {
-    const viewMonth = viewDate.getMonth();
-    const viewYear = viewDate.getFullYear();
-    
-    const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
-    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-    
-    const grid = document.getElementById('calendar-preview');
-    const title = document.getElementById('calendar-month-preview');
-    const listContainer = document.getElementById('holiday-list-preview'); // ID do container de feriados no mockup
+    //let pressTimer;
+    const LONG_PRESS_DURATION = 500; // ms
 
-    if (!grid || !title) return;
-
-    title.innerText = `${monthNames[viewMonth]} ${viewYear}`;
-    grid.innerHTML = "";
-
-    // 1. Espaços vazios
-    for (let i = 0; i < firstDayOfMonth; i++) {
-      const emptyDiv = document.createElement('div');
-      emptyDiv.classList.add('calendar-day', 'empty');
-      grid.appendChild(emptyDiv);
+    function setupInteractions(element, type, dateKey = null) {
+        element.onmousedown = (e) => startPress(e, type, dateKey);
+        element.onmouseup = (e) => endPress(e, type, dateKey);
+        // Suporte para Mobile
+        element.ontouchstart = (e) => startPress(e, type, dateKey);
+        element.ontouchend = (e) => endPress(e, type, dateKey);
     }
 
-    let temFeriadoNoMes = false;
-
-    // 2. Gerar dias e buscar dados salvos
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dayElement = document.createElement('div');
-      dayElement.classList.add('calendar-day');
-      dayElement.innerText = day;
-      
-      const dateKey = `${viewYear}-${viewMonth + 1}-${day}`;
-      
-      // Espelha Feriados
-      if (holidays[dateKey]) {
-        dayElement.classList.add('is-holiday');
-        temFeriadoNoMes = true;
-      }
-
-      // AQUI ESTÁ O SEGREDO: Ele busca exatamente o que o scheduleData tem
-      if (scheduleData[dateKey] === 'Folga') {
-        dayElement.classList.add('day-off');
-      } else if (scheduleData[dateKey] === 'Meio-Período') {
-        dayElement.classList.add('day-half');
-      }
-
-      grid.appendChild(dayElement);
+    function startPress(e, type, dateKey) {
+        e.target.dataset.longPress = "false";
+        pressTimer = setTimeout(() => {
+            e.target.dataset.longPress = "true";
+            openEditor(type); // Ativa edição (Banner, Título ou Cores do Calendário)
+        }, LONG_PRESS_DURATION);
     }
 
-    // 3. Lógica dos Feriados (Problema 2 resolvido)
-    if (listContainer) {
-      listContainer.innerHTML = ""; // Limpa
-      let htmlFeriados = "";
-
-      if (temFeriadoNoMes) {
-        for (const [dateKey, name] of Object.entries(holidays)) {
-          const [y, m, d] = dateKey.split('-').map(Number);
-          if (y === viewYear && m === (viewMonth + 1)) {
-            htmlFeriados += `<div class="holiday-item"><strong>${dateKey}:</strong> ${name}</div>`;
-          }
+    function endPress(e, type, dateKey) {
+        clearTimeout(pressTimer);
+        // Se não foi clique longo e é um dia do calendário, abre o agendamento
+        if (e.target.dataset.longPress === "false" && type === 'agendamento') {
+            abrirJanelaInformacoes(e.target, dateKey);
         }
-        listContainer.innerHTML = htmlFeriados;
-        listContainer.style.display = 'block'; // Aparece se houver
-      } else {
-        listContainer.style.display = 'none'; // Some se não houver
-      }
     }
+
+    let isLongPressActive = false; // Variável global de controle
+
+    function handlePressStart(e, tipo) {
+        isLongPressActive = false;
+        pressTimer = setTimeout(() => {
+            isLongPressActive = true;
+            openEditor(tipo);
+        }, 600);
+    }
+
+    function handlePressEnd(e, tipo) {
+        clearTimeout(pressTimer);
+        // Se quiser que o clique simples no banner ou titulo faça algo no futuro,
+        // você usaria: if(!isLongPressActive) { ... }
+    }
+
+    // Na função que gera os dias (generatePreviewCalendar), o clique simples
+    // só deve agir se NÃO foi um clique longo.
+    function setupInteractions(element, type, dateKey) {
+      element.onmousedown = (e) => {
+          e.stopPropagation(); // IMPEDE de ativar o editor do wrapper pai
+          isLongPressActive = false;
+          pressTimer = setTimeout(() => {
+              isLongPressActive = true;
+              openEditor('cores'); // Se segurar num dia, edita as cores
+          }, 600);
+      };
+
+      element.onmouseup = (e) => {
+          e.stopPropagation(); // IMPEDE de ativar o editor do wrapper pai
+          clearTimeout(pressTimer);
+          
+          // SÓ abre agendamento se NÃO foi clique longo
+          if (!isLongPressActive && type === 'agendamento') {
+              abrirJanelaInformacoes(e.target, dateKey);
+          }
+      };
+
+      // Repetir a mesma lógica para Touch (Mobile)
+      element.ontouchstart = (e) => {
+          e.stopPropagation();
+          isLongPressActive = false;
+          pressTimer = setTimeout(() => {
+              isLongPressActive = true;
+              openEditor('cores');
+          }, 600);
+      };
+
+      element.ontouchend = (e) => {
+          e.stopPropagation();
+          clearTimeout(pressTimer);
+          if (!isLongPressActive && type === 'agendamento') {
+              abrirJanelaInformacoes(e.target, dateKey);
+          }
+      };
   }
 
+  function abrirJanelaInformacoes(target, dateKey) {
+    // 1. Limpeza de estados anteriores
+    document.querySelectorAll('.selected-preview').forEach(d => d.classList.remove('selected-preview'));
+    const drawerExistente = document.querySelector('.info-drawer');
+    if (drawerExistente) drawerExistente.remove();
+
+    // 2. Destaca o dia selecionado (mantendo a posição original dele)
+    target.classList.add('selected-preview');
+
+    // 3. Localiza o ponto de inserção (Fim da Semana)
+    const grid = target.parentNode;
+    const todosOsDias = Array.from(grid.children);
+    const indiceClicado = todosOsDias.indexOf(target);
+    
+    // Cálculo: Encontra o índice do Sábado (última coluna) da linha atual
+    // Como o grid tem 7 colunas, o fim da linha é sempre o próximo múltiplo de 7 menos 1.
+    let indiceFimDaSemana = (Math.floor(indiceClicado / 7) * 7) + 6;
+    
+    // Garante que não tentaremos inserir depois de um dia que não existe (fim do mês)
+    if (indiceFimDaSemana >= todosOsDias.length) {
+        indiceFimDaSemana = todosOsDias.length - 1;
+    }
+
+    const noDeReferencia = todosOsDias[indiceFimDaSemana];
+
+    // 4. Criação da Janela (Drawer)
+    const drawer = document.createElement('div');
+    drawer.className = 'info-drawer';
+    
+    // Buscamos as configurações salvas no scheduleData.config
+    const config = scheduleData.config || {};
+    const isHorario = config.usarAgendamento || false;
+
+    drawer.innerHTML = `
+        <div class="drawer-content">
+            <h4>📅 Detalhes para o dia ${dateKey.split('-')[2]}</h4>
+            <p>✨ <strong>${config.vagas || 0} vagas</strong> disponíveis</p>
+            <p>📍 ${isHorario ? 'Agendamento por Horários' : 'Ordem de Chegada'}</p>
+            <p>🕒 Horário: ${config.open || '--:--'} às ${config.close || '--:--'}</p>
+            <button class="save-btn" onclick="alert('Simulação: Agendamento Concluído!')" style="width:100%; margin-top:10px;">
+                Agendar Agora
+            </button>
+        </div>
+    `;
+
+    // 5. Insere APÓS o último dia da semana selecionada
+    noDeReferencia.after(drawer);
+
+    // 6. Rolagem Automática (Resolvendo seu pedido de rolagem)
+    setTimeout(() => {
+        drawer.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'nearest' 
+        });
+    }, 700);
+}
+
+  function generatePreviewCalendar() {
+  const viewMonth = viewDate.getMonth();
+  const viewYear = viewDate.getFullYear();
+  
+  const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  
+  const grid = document.getElementById('calendar-preview');
+  const title = document.getElementById('calendar-month-preview');
+  const listContainer = document.getElementById('holiday-list-preview');
+
+  if (!grid || !title) return;
+
+  title.innerText = `${monthNames[viewMonth]} ${viewYear}`;
+  grid.innerHTML = ""; // Limpa o calendário antes de gerar
+
+  // 1. Gerar espaços vazios
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    const emptyDiv = document.createElement('div');
+    emptyDiv.classList.add('calendar-day', 'empty');
+    grid.appendChild(emptyDiv);
+  }
+
+  let temFeriadoNoMes = false;
+
+  // 2. GERAR DIAS (Loop Único e Unificado)
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayElement = document.createElement('div');
+    dayElement.classList.add('calendar-day');
+    dayElement.innerText = day;
+    
+    const dateKey = `${viewYear}-${viewMonth + 1}-${day}`;
+    
+    // --- Lógica de Interação ---
+    // Vincula o clique simples (agendar) e o clique longo (editar cores)
+    setupInteractions(dayElement, 'agendamento', dateKey);
+
+    // --- Lógica de Estilização (Cores) ---
+    // Verifica Feriados
+    if (holidays[dateKey]) {
+      dayElement.classList.add('is-holiday');
+      temFeriadoNoMes = true;
+    }
+
+    // Verifica Folgas e Meio-Período salvos no scheduleData
+    if (scheduleData[dateKey] === 'Folga') {
+      dayElement.classList.add('day-off');
+    } else if (scheduleData[dateKey] === 'Meio-Período') {
+      dayElement.classList.add('day-half');
+    }
+
+    // Adiciona o dia ao grid (Usando a variável correta: grid)
+    grid.appendChild(dayElement);
+  }
+
+  // 3. Exibição da lista de feriados abaixo do grid
+  if (listContainer) {
+    listContainer.innerHTML = "";
+    if (temFeriadoNoMes) {
+      let htmlFeriados = "";
+      for (const [dateKey, name] of Object.entries(holidays)) {
+        const [y, m, d] = dateKey.split('-').map(Number);
+        if (y === viewYear && m === (viewMonth + 1)) {
+          htmlFeriados += `<div class="holiday-item"><strong>${dateKey}:</strong> ${name}</div>`;
+        }
+      }
+      listContainer.innerHTML = htmlFeriados;
+      listContainer.style.display = 'block';
+    } else {
+      listContainer.style.display = 'none';
+    }
+  }
+}
+    
+    
   function closeBooking() {
     const modal = document.getElementById('booking-modal');
     modal.style.animation = "slideDown 0.3s ease-in"; // Opcional: animação de saída
@@ -1408,29 +1633,41 @@ input::-webkit-inner-spin-button {
         </div>
       `;
     }// --- NOVA OPÇÃO PARA O CALENDÁRIO ---
-    else if (tipo === 'cores') {
-      title.innerText = "Cores do Agendamento";
-      content.innerHTML = `
-        <div style="margin-top:10px;">
-          <label style="font-size:10px; display:block;">Cor Principal (Mês e Botões)</label>
-          <input type="color" style="width:100%" oninput="updateCalendarTheme('primary', this.value)">
-        </div>
-        <div style="margin-top:10px;">
-          <label style="font-size:10px; display:block;">Cor de Seleção (Bordas)</label>
-          <input type="color" style="width:100%" oninput="updateCalendarTheme('selection', this.value)">
-        </div>
-      `;
-     }
-  }
+            
+        
+      else if (tipo === 'cores') {
+        title.innerText = "Temas do Calendário";
+        content.innerHTML = `
+          <div class="theme-grid" style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="tab-button" onclick="applyTheme('modern-dark')" style="background:#ecfdf5; color:#059669; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
+              🌿 Moderno (Verde/Cinza)
+            </button>
+            <button class="tab-button" onclick="applyTheme('classic-red')" style="background:#fee2e2; color:#ef4444; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
+              🍎 Clássico (Vermelho/Branco)
+            </button>
+            <button class="tab-button" onclick="applyTheme('')" style="background:#f3f4f6; color:#333; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
+              ✨ Padrão (Indigo)
+            </button>
+          </div>
+        `;
+      }
+      // ... manter os outros if (titulo, banner) que você já tem no arquivo
+    }
+  
   
   function closeEditor() {
     document.getElementById('editor-popover').style.display = 'none';
+  }
+  function applyTheme(tema) {
+    const mockup = document.querySelector('.calendar-wrapper.preview-mode');
+    // Remove temas anteriores e aplica o novo
+    mockup.classList.remove('modern-dark', 'classic-red');
+    if (tema) mockup.classList.add(tema);
   }
   
   function updateTitle(val) { document.getElementById('preview-title').innerText = val; }
   function updateTitleColor(val) { document.getElementById('preview-title').style.color = val; }
   function updateBannerColor(val) { document.querySelector('.banner').style.background = val; }
-  function updateCalendarTheme(alvo, valor) { document.querySelector('.calendar-preview-container').style.background = val; }
   
   
   function openTab(evt, tabId) {
@@ -1474,6 +1711,22 @@ function openEditor(tipo) {
       </div>
     `;
   }
+    else if (tipo === 'cores') {
+          title.innerText = "Temas do Calendário";
+          content.innerHTML = `
+            <div class="theme-grid" style="display: flex; flex-direction: column; gap: 8px;">
+              <button class="tab-button" onclick="applyTheme('modern-dark')" style="background:#ecfdf5; color:#059669; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
+                🌿 Moderno (Verde/Cinza)
+              </button>
+              <button class="tab-button" onclick="applyTheme('classic-red')" style="background:#fee2e2; color:#ef4444; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
+                🍎 Clássico (Vermelho/Branco)
+              </button>
+              <button class="tab-button" onclick="applyTheme('')" style="background:#f3f4f6; color:#333; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
+                ✨ Padrão (Indigo)
+              </button>
+            </div>
+          `;
+        }
 }
 
 function closeEditor() {
