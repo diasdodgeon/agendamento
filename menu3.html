@@ -256,6 +256,8 @@ input:checked + .slider:before { transform: translateX(18px); }
   border-radius: 10px;
 }
 
+
+
 .calendar-day {
   aspect-ratio: 1;
   display: flex;
@@ -288,6 +290,11 @@ input:checked + .slider:before { transform: translateX(18px); }
   font-weight: bold;
   color: #888;
   margin-bottom: 5px;
+}
+/* Estiliza o "Dom" no cabeçalho da semana */
+.weekdays-grid div:nth-child(7n+1) {
+  color: #ef4444; /* Vermelho para destacar que é domingo */
+  font-weight: bold;
 }
 
 .calendar-day.empty {
@@ -332,11 +339,11 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 
 .calendar-day.is-holiday::after {
-  content: 'H'; /* Pequeno indicador de Holiday/Feriado */
+  content: '🚩'; /* Pequeno indicador de Holiday/Feriado */
   position: absolute;
-  top: 2px;
-  right: 2px;
-  font-size: 7px;
+  top: -0.3px;
+  right: 13px;
+  font-size: 8px;
   color: #ff9800;
   font-weight: bold;
 }
@@ -522,6 +529,172 @@ input::-webkit-inner-spin-button {
   to { opacity: 1; transform: translateY(0); }
 }
     
+
+:root {
+  --cor-principal-app: #4f46e5; /* Cor padrão inicial */
+  --cor-texto-calendario: #1f2937;
+  --cor-fundo-folga: #fee2e2;
+  --cor-texto-folga: #ef4444;
+}
+
+.calendar-preview-container {
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  padding: 15px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Aplicando a cor customizável no cabeçalho */
+#calendar-month-preview {
+  color: var(--cor-principal-app);
+  font-weight: bold;
+}
+
+/* Estilo dos dias */
+.calendar-day-preview {
+  padding: 10px;
+  text-align: center;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--cor-texto-calendario);
+}
+
+/* Dia de Folga (Espelhado da aba Horários) */
+.day-off-preview {
+  background-color: var(--cor-fundo-folga);
+  color: var(--cor-texto-folga);
+  font-weight: bold;
+  text-decoration: line-through;
+}
+
+/* Meio Período (Espelhado) */
+.day-half-preview {
+  border: 2px solid var(--cor-principal-app);
+  color: var(--cor-principal-app);
+}
+
+/* No seu CSS */
+.preview-mode {
+  --cor-tema: #4f46e5; /* Valor padrão */
+}
+
+/* Onde você quer que a cor mude no mockup, use a variável */
+.preview-mode #calendar-month-preview {
+  color: var(--cor-tema);
+}
+
+.preview-mode .calendar-day.selected {
+  background-color: var(--cor-tema);
+}
+/* No preview, vamos confiar nas classes injetadas pelo JS */
+#calendar-preview .calendar-day.day-off {
+  background-color: #fee2e2 !important; /* Vermelho claro */
+  color: #ef4444 !important;
+  text-decoration: line-through;
+}
+
+#calendar-preview .calendar-day.day-half {
+  border: 2px solid #4f46e5 !important; /* Cor do tema */
+  color: #4f46e5 !important;
+}
+
+#calendar-preview .calendar-day.is-holiday {
+  background-color: #fef9c3; /* Amarelo para feriados */
+  border-bottom: 2px solid #facc15;
+}
+/* Garante que o feedback visual funcione bem em blocos grandes */
+.calendar-section.editable-element:hover {
+  outline: 2px dashed #4f46e5;
+  outline-offset: 4px; /* Cria um respiro entre o calendário e o tracejado */
+  border-radius: 12px;
+  background-color: rgba(79, 70, 229, 0.02); /* Um fundo ainda mais sutil */
+}
+
+/* Opcional: Adicionar um pequeno rótulo de "Editar" ao passar o mouse */
+.editable-element:hover::after {
+  content: "Clique para editar";
+  position: absolute;
+  top: -25px;
+  right: 10px;
+  background: #4f46e5;
+  color: white;
+  padding: 2px 8px;
+  font-size: 10px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+
+
+/* Container que simula o corpo do celular */
+.mockup-screen {
+  position: relative; /* Base para o modal não fugir */
+  overflow: hidden;   /* Corta o que sair para fora das bordas */
+  height: 300px;      /* Ou a altura que você definiu */
+  background: white;
+  border-radius: 30px; /* Para alinhar com a borda externa */
+}
+
+.booking-modal {
+  display: none;
+  position: absolute;
+  bottom: 10px;
+  left: 28px;
+  width: 78%;
+  height: 60%; /* Ajuste para não cobrir a tela toda se desejar */
+  background: white;
+  border-top: 1px solid #eee;
+  box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+  z-index: 100;
+  padding: 20px;
+  box-sizing: border-box; /* Garante que o padding não aumente a largura */
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Estilo para o cabeçalho do modal */
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+.close-modal-btn {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.close-modal-btn:hover { background: #e5e7eb; }
+@keyframes slideDown {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+.time-slot-btn {
+  border: 1px solid var(--primary-color);
+  background: white;
+  color: var(--primary-color);
+  padding: 8px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.time-slot-btn.selected {
+  background: var(--primary-color);
+  color: white;
+}
+
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -620,6 +793,11 @@ input::-webkit-inner-spin-button {
     <label><strong>*Obrigatório</strong> - Horário de encerramento</label>
     <input type="time" id="time-close" class="input-field" value="17:00" onchange="calculateWorkMinutes()">
   </div>
+
+  <div id="work-summary" class="calculation-panel">
+      Carregando cálculos...
+  </div>
+
   <div class="form-group">
     <label>Quantidade de vagas diárias: </label>
     <h3>Quantos clientes voçê pode atender, por dia?</h3>
@@ -630,9 +808,7 @@ input::-webkit-inner-spin-button {
     </div>
   </div>
 
-   <div id="work-summary" class="calculation-panel">
-      Carregando cálculos...
-    </div>
+   
       
   <div class="form-group checkbox-group">
     <label for="check-agendamento">Definir horários de agendamento?</label>
@@ -651,7 +827,7 @@ input::-webkit-inner-spin-button {
   </div>
     <div class="actions-container">
       <button type="button" id="btn-salvar-horarios" onclick="salvarConfiguracoes()">
-        <span>💾</span> Salvar Configurações
+        Salvar Configurações
       </button>
       <div id="save-feedback" class="save-feedback">Configurações salvas com sucesso!</div>
     </div>
@@ -682,13 +858,41 @@ input::-webkit-inner-spin-button {
           <button id="preview-button">Agendar Agora</button>
         </div>
 
-        <div class="editable-element schedule-preview" onclick="openEditor('horarios-view')">
-          <p style="font-size: 10px; font-weight: bold; margin: 5px;">Status de Horários:</p>
-          <div id="preview-schedule-list">
-            <span style="font-size: 9px; color: #999; padding: 5px;">Nenhuma alteração nos horários.</span>
+       
+
+
+        
+        <div class="calendar-wrapper preview-mode editable-element" 
+           onmousedown="handlePressStart(event, 'cores')" 
+           onmouseup="handlePressEnd(event, 'cores')"
+           ontouchstart="handlePressStart(event, 'cores')" 
+           ontouchend="handlePressEnd(event, 'cores')">
+           </div>
+          <div class="calendar-header">
+            <button class="nav-btn" style="opacity: 0.5; cursor: default;">&#10094;</button>
+            <h3 id="calendar-month-preview">Mês Atual</h3> <button class="nav-btn" style="opacity: 0.5; cursor: default;">&#10095;</button>
           </div>
+          
+          <div class="weekdays-grid">
+            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sab</div>
+          </div>
+          
+          <div class="calendar-grid" id="calendar-preview">
+            </div>
+          <div id="holiday-list-preview" class="holiday-info-box">
+        </div>
+        <div id="booking-modal" class="booking-modal">
+          <div class="booking-header">
+            <h3 id="booking-date-title" style="margin:0; font-size: 16px;">Dia 23 - Segunda</h3>
+            <button class="close-modal-btn" onclick="closeBooking()">✕</button>
+          </div>
+          <div id="booking-body">
+            </div>
+        </div>
         </div>
 
+        
+        
       </div>
     </div>
 
@@ -707,9 +911,40 @@ input::-webkit-inner-spin-button {
 <script type="text/javascript">
   
 
+  function inicializarFolgasPadrao() {
+    const hoje = new Date();
+    const anoAtual = hoje.getFullYear();
+    const mesAtual = hoje.getMonth();
+
+    // Vamos percorrer o mês atual e os próximos 2 meses
+    for (let m = 0; m <= 2; m++) {
+        const dataBusca = new Date(anoAtual, mesAtual + m, 1);
+        const diasNoMes = new Date(anoAtual, mesAtual + m + 1, 0).getDate();
+        const mesParaChave = dataBusca.getMonth() + 1;
+        const anoParaChave = dataBusca.getFullYear();
+
+        for (let dia = 1; dia <= diasNoMes; dia++) {
+            const dataTemp = new Date(anoParaChave, mesParaChave - 1, dia);
+            const dateKey = `${anoParaChave}-${mesParaChave}-${dia}`;
+
+            // Se for Domingo (0) e NÃO houver nenhuma marcação manual ainda
+            if (dataTemp.getDay() === 0 && !scheduleData[dateKey]) {
+                scheduleData[dateKey] = 'Folga';
+            }
+        }
+    }
+    console.log("✅ Domingos pré-configurados como folga.");
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+      inicializarFolgasPadrao(); // Preenche o objeto scheduleData primeiro
+      generateCalendar();        // Depois renderiza visualmente
+      calculateWorkMinutes();    // E calcula os tempos
+  });
+
   
   // Inicializar o cálculo assim que a página carregar
-  window.addEventListener('DOMContentLoaded', calculateWorkMinutes);
+  //window.addEventListener('DOMContentLoaded', calculateWorkMinutes);
 
   // Objeto Global para guardar os dados e serem usados na aba 'Aparência'
   let configuracaoUsuario = {
@@ -791,6 +1026,7 @@ input::-webkit-inner-spin-button {
   // CADASTRO DE FERIADOS (Exemplo: 2026)
   const holidays = {
     "2026-1-1": "Ano Novo",
+    "2026-3-3": "teste",
     "2026-4-3": "Sexta-feira Santa",
     "2026-4-21": "Tiradentes",
     "2026-5-1": "Dia do Trabalho",
@@ -801,7 +1037,7 @@ input::-webkit-inner-spin-button {
     "2026-12-25": "Natal"
   };
   
-  function generateCalendar() {
+    function generateCalendar() {
     const viewMonth = viewDate.getMonth();
     const viewYear = viewDate.getFullYear();
     
@@ -809,47 +1045,69 @@ input::-webkit-inner-spin-button {
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     const calendarGrid = document.getElementById('calendar-admin');
     const monthTitle = document.getElementById('calendar-month-name');
-  
+
     if (!calendarGrid) return;
-  
+
     monthTitle.innerText = `${monthNames[viewMonth]} ${viewYear}`;
     calendarGrid.innerHTML = "";
-  
-    // Controle de bloqueio das setas (Limite de 2 meses à frente)
+
     updateNavButtons();
-  
+
     for (let i = 0; i < firstDayOfMonth; i++) {
       const emptyDiv = document.createElement('div');
       emptyDiv.classList.add('calendar-day', 'empty');
       calendarGrid.appendChild(emptyDiv);
     }
-  
+
     for (let day = 1; day <= daysInMonth; day++) {
       const dayElement = document.createElement('div');
       dayElement.classList.add('calendar-day');
       dayElement.innerText = day;
       
-      // Identificador único (YYYY-MM-DD)
       const dateKey = `${viewYear}-${viewMonth + 1}-${day}`;
       
+      // --- NOVO: Lógica para marcar Domingos automaticamente ---
+      const dataObjeto = new Date(viewYear, viewMonth, day);
+      const diaDaSemana = dataObjeto.getDay(); // 0 = Domingo
+
+      // Se for domingo e ainda NÃO houver nada salvo no scheduleData para este dia
+      if (diaDaSemana === 0 && !scheduleData[dateKey]) {
+        scheduleData[dateKey] = 'Folga'; // Pré-define como folga
+      }
+      // ---------------------------------------------------------
+
       // 1. Verificar se é feriado
       if (holidays[dateKey]) {
         dayElement.classList.add('is-holiday');
-        dayElement.title = holidays[dateKey]; // Mostra o nome do feriado ao passar o mouse
+        dayElement.title = holidays[dateKey];
       }
-  
-      // 2. Restaurar estado (Cores) se houver dados salvos
+
+      // 2. Restaurar estado (Agora inclui os domingos pré-marcados)
       if (scheduleData[dateKey] === 'Folga') dayElement.classList.add('day-off');
       if (scheduleData[dateKey] === 'Meio-Período') dayElement.classList.add('day-half');
-  
-      // 3. Eventos (Mouse e Toque)
+
+      // Dentro do loop de dias da generatePreviewCalendar
+      if (scheduleData[dateKey] !== 'Folga') {
+          dayElement.onclick = (e) => {
+              // Só abre se não for um clique longo de edição
+              if (!e.target.dataset.isLongPress) {
+                  abrirJanelaAgendamento(day, dateKey);
+              }
+              delete e.target.dataset.isLongPress;
+          };
+      }
+
+
+
+      // 3. Eventos
       dayElement.addEventListener('touchstart', (e) => { e.preventDefault(); startPress(e, dateKey); }, {passive: false});
       dayElement.addEventListener('touchend', (e) => { e.preventDefault(); endPress(e, dateKey); }, {passive: false});
       dayElement.addEventListener('mousedown', (e) => startPress(e, dateKey));
       dayElement.addEventListener('mouseup', (e) => endPress(e, dateKey));
-  
+
       calendarGrid.appendChild(dayElement);
     }
+
     // NOVA FUNÇÃO: Renderiza o texto dos feriados abaixo do mês
     function renderHolidaysText() {
       const listContainer = document.getElementById('holiday-list-container');
@@ -885,6 +1143,53 @@ input::-webkit-inner-spin-button {
     renderHolidaysText();
   }
   
+  function abrirJanelaAgendamento(dia, dateKey) {
+    const modal = document.getElementById('booking-modal');
+    const body = document.getElementById('booking-body');
+    const config = scheduleData.config; // Pegamos o que foi salvo na aba Horários
+
+    modal.style.display = 'block';
+    
+    // Lógica de exibição baseada na escolha do usuário
+    let htmlContent = `
+      <p class="vagas-info">✨ ${config.vagas} vagas disponíveis</p>
+    `;
+
+    //if (config.usarAgendamento) {
+      // Caso: Agendamento por Horários
+    //  htmlContent += `<h4>Horários disponíveis:</h4><div class="slots-grid">`;
+      
+    if (config.usarAgendamento) {
+      htmlContent += `<div class="slots-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;">`;
+      // ... loop dos horários ...
+      htmlContent += `<button class="time-slot-btn" onclick="selectSlot(this)">08:00</button>`;
+      // ...
+      htmlContent += `</div>`;
+    }
+
+      // Gerar os slots (Ex: 08:00, 08:30...)
+    //  let inicio = moment(config.open, "HH:mm");
+    //  for(let i=0; i < config.vagas; i++) {
+     //     htmlContent += `<button class="slot-btn">${inicio.format("HH:mm")}</button>`;
+    //      inicio.add(config.tempoPorVaga, 'minutes');
+     // }
+      //htmlContent += `</div>`;
+    //} 
+    else {
+      // Caso: Ordem de Chegada
+      htmlContent += `
+        <div class="arrival-info">
+          <p>📍 Atendimento por ordem de chegada</p>
+          <p>Horário: ${config.open} às ${config.close}</p>
+        </div>
+      `;
+    }
+
+    htmlContent += `<button class="btn-confirmar">Agendar Agora</button>`;
+    body.innerHTML = htmlContent;
+  }
+
+
   // MUDAR DE MÊS
   function changeMonth(direction) {
     // Altera o mês da viewDate
@@ -922,6 +1227,21 @@ input::-webkit-inner-spin-button {
     }
   }
   
+    function handlePressStart(e, tipo) {
+        pressTimer = setTimeout(() => {
+            openEditor(tipo); // Abre a edição se segurar 500ms
+            e.target.dataset.isLongPress = "true";
+        }, 500);
+    }
+
+    function handlePressEnd(e, tipo) {
+        clearTimeout(pressTimer);
+        // Se NÃO foi um clique longo, podemos tratar como clique simples aqui 
+        // ou deixar os elementos internos (dias) lidarem com isso.
+    }
+
+
+
   function handleDaySelection(dateKey, type, element) {
     if (!element) return;
   
@@ -966,6 +1286,85 @@ input::-webkit-inner-spin-button {
     }
   }
   
+  function generatePreviewCalendar() {
+    const viewMonth = viewDate.getMonth();
+    const viewYear = viewDate.getFullYear();
+    
+    const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    
+    const grid = document.getElementById('calendar-preview');
+    const title = document.getElementById('calendar-month-preview');
+    const listContainer = document.getElementById('holiday-list-preview'); // ID do container de feriados no mockup
+
+    if (!grid || !title) return;
+
+    title.innerText = `${monthNames[viewMonth]} ${viewYear}`;
+    grid.innerHTML = "";
+
+    // 1. Espaços vazios
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      const emptyDiv = document.createElement('div');
+      emptyDiv.classList.add('calendar-day', 'empty');
+      grid.appendChild(emptyDiv);
+    }
+
+    let temFeriadoNoMes = false;
+
+    // 2. Gerar dias e buscar dados salvos
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayElement = document.createElement('div');
+      dayElement.classList.add('calendar-day');
+      dayElement.innerText = day;
+      
+      const dateKey = `${viewYear}-${viewMonth + 1}-${day}`;
+      
+      // Espelha Feriados
+      if (holidays[dateKey]) {
+        dayElement.classList.add('is-holiday');
+        temFeriadoNoMes = true;
+      }
+
+      // AQUI ESTÁ O SEGREDO: Ele busca exatamente o que o scheduleData tem
+      if (scheduleData[dateKey] === 'Folga') {
+        dayElement.classList.add('day-off');
+      } else if (scheduleData[dateKey] === 'Meio-Período') {
+        dayElement.classList.add('day-half');
+      }
+
+      grid.appendChild(dayElement);
+    }
+
+    // 3. Lógica dos Feriados (Problema 2 resolvido)
+    if (listContainer) {
+      listContainer.innerHTML = ""; // Limpa
+      let htmlFeriados = "";
+
+      if (temFeriadoNoMes) {
+        for (const [dateKey, name] of Object.entries(holidays)) {
+          const [y, m, d] = dateKey.split('-').map(Number);
+          if (y === viewYear && m === (viewMonth + 1)) {
+            htmlFeriados += `<div class="holiday-item"><strong>${dateKey}:</strong> ${name}</div>`;
+          }
+        }
+        listContainer.innerHTML = htmlFeriados;
+        listContainer.style.display = 'block'; // Aparece se houver
+      } else {
+        listContainer.style.display = 'none'; // Some se não houver
+      }
+    }
+  }
+
+  function closeBooking() {
+    const modal = document.getElementById('booking-modal');
+    modal.style.animation = "slideDown 0.3s ease-in"; // Opcional: animação de saída
+    
+    setTimeout(() => {
+      modal.style.display = 'none';
+      modal.style.animation = "slideUp 0.3s ease-out"; // Reseta para a próxima abertura
+    }, 250);
+  }
+
   // NAVEGAÇÃO DE ABAS
   function openTab(evt, tabId) {
     const windows = document.getElementsByClassName("tab-window");
@@ -976,8 +1375,15 @@ input::-webkit-inner-spin-button {
   
     document.getElementById(tabId).classList.add("active");
     evt.currentTarget.classList.add("active");
+
+    generatePreviewCalendar()
+
   }
   
+  
+
+  
+
   // EDITOR DE APARÊNCIA
   function openEditor(tipo) {
     const popover = document.getElementById('editor-popover');
@@ -1001,7 +1407,20 @@ input::-webkit-inner-spin-button {
           <input type="color" style="width:100%" onchange="updateBannerColor(this.value)">
         </div>
       `;
-    }
+    }// --- NOVA OPÇÃO PARA O CALENDÁRIO ---
+    else if (tipo === 'cores') {
+      title.innerText = "Cores do Agendamento";
+      content.innerHTML = `
+        <div style="margin-top:10px;">
+          <label style="font-size:10px; display:block;">Cor Principal (Mês e Botões)</label>
+          <input type="color" style="width:100%" oninput="updateCalendarTheme('primary', this.value)">
+        </div>
+        <div style="margin-top:10px;">
+          <label style="font-size:10px; display:block;">Cor de Seleção (Bordas)</label>
+          <input type="color" style="width:100%" oninput="updateCalendarTheme('selection', this.value)">
+        </div>
+      `;
+     }
   }
   
   function closeEditor() {
@@ -1011,11 +1430,8 @@ input::-webkit-inner-spin-button {
   function updateTitle(val) { document.getElementById('preview-title').innerText = val; }
   function updateTitleColor(val) { document.getElementById('preview-title').style.color = val; }
   function updateBannerColor(val) { document.querySelector('.banner').style.background = val; }
+  function updateCalendarTheme(alvo, valor) { document.querySelector('.calendar-preview-container').style.background = val; }
   
-
-  
-  
-
   
   function openTab(evt, tabId) {
   // 1. Esconder todas as janelas de conteúdo
@@ -1077,7 +1493,18 @@ function updateBannerColor(val) {
   document.querySelector('.banner').style.background = val;
 }
 
-
+// Atualiza o Tema do Calendário (Usando as variáveis CSS)
+function updateCalendarTheme(alvo, valor) {
+  const root = document.querySelector('.calendar-preview-container');
+  if (alvo === 'primary') {
+    root.style.setProperty('--primary-color', valor);
+    // Opcional: Atualiza o botão "Agendar Agora" junto
+    const btn = document.querySelector('.btn-agendar');
+    if(btn) btn.style.backgroundColor = valor;
+  } else if (alvo === 'selection') {
+    root.style.setProperty('--selection-color', valor);
+  }
+}
 // Função auxiliar: Transforma "07:30" em 450 (minutos)
 function timeToMinutes(timeString) {
   const [hours, minutes] = timeString.split(':').map(Number);
@@ -1145,6 +1572,7 @@ function salvarConfiguracoes() {
   calculateWorkMinutes(); 
   calcularTempoVaga();
 
+
   // 2. Capturar os estados dos elementos de interface
   const isAgendamentoAtivo = document.getElementById('check-agendamento').checked;
   const qtdVagas = parseInt(document.getElementById('vagas-diarias').value);
@@ -1156,7 +1584,11 @@ function salvarConfiguracoes() {
     vagas: qtdVagas,
     usarAgendamento: isAgendamentoAtivo,
     // O tempoPorVaga é crucial para gerar a grade de horários depois
-    tempoPorVaga: scheduleData.config.tempoPorVaga 
+    tempoPorVaga: scheduleData.config.tempoPorVaga,
+    // Aqui garantimos que salvamos todo o objeto de datas (inclusive folgas automáticas)
+    mapaDeDatas: { ...scheduleData }, 
+    vagas: parseInt(document.getElementById('vagas-diarias').value),
+    usarAgendamento: document.getElementById('check-agendamento').checked 
   };
 
   // 4. Feedback visual para o usuário
@@ -1173,18 +1605,17 @@ function salvarConfiguracoes() {
   setTimeout(() => {
     feedback.style.display = 'none';
     btn.style.backgroundColor = '#4f46e5';
-    btn.innerHTML = '<span>💾</span> Salvar Configurações';
+    btn.innerHTML = 'Salvar Configurações';
   }, 2500);
+  generatePreviewCalendar()
 }
 
 // INICIALIZAÇÃO
 window.onload = generateCalendar;
-  
+window.onload = generatePreviewCalendar;
 </script>
 </body>
 </html>
-
-
 
 
 
