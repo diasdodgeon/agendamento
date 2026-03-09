@@ -612,8 +612,8 @@ input::-webkit-inner-spin-button {
 }
 
 /* Opcional: Adicionar um pequeno rótulo de "Editar" ao passar o mouse */
-.editable-element:hover::after {
-  content: "Clique e segure, para editar";
+.editable-element:hover::before {
+  content: "Clique e segure para editar";
   position: absolute;
   top: -25px;
   right: 10px;
@@ -757,7 +757,50 @@ input::-webkit-inner-spin-button {
   border: 2px solid var(--color-half) !important;
 }
 
+/* Gradiente para Meio-Período (Tema Verde) */
+.modern-dark .day-half {
+    background: linear-gradient(135deg, #ecfdf5 50%, #f3f4f6 50%) !important;
+    border: 1px dashed #10b981 !important;
+    color: #059669 !important;
+}
 
+/* Gradiente para Meio-Período (Tema Vermelho) */
+.classic-red .day-half {
+    background: linear-gradient(135deg, #fee2e2 50%, #ffffff 50%) !important;
+    border: 1px dashed #ef4444 !important;
+    color: #dc2626 !important;
+}
+
+/* Garante que o calendário não dispare o editor sozinho ao renderizar */
+.calendar-day {
+    user-select: none; /* Impede seleção de texto ao segurar */
+    -webkit-tap-highlight-color: transparent;
+}
+/* Remove a borda azul clássica de foco */
+.calendar-day, .editable-element {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent; /* Remove o flash cinza no mobile */
+}
+
+/* Estilização Visual dos Dias (Sem depender de scripts extras) */
+.modern-dark .day-half {
+    background: linear-gradient(135deg, #ecfdf5 50%, #f3f4f6 50%) !important;
+    border: 1px dashed #10b981 !important;
+    color: #059669 !important;
+}
+
+.classic-red .day-half {
+    background: linear-gradient(135deg, #fee2e2 50%, #ffffff 50%) !important;
+    border: 1px dashed #ef4444 !important;
+    color: #dc2626 !important;
+}
+
+/* Destaque do dia selecionado (Preview) */
+.calendar-day.selected-preview {
+    border: 2px solid #4f46e5 !important;
+    transform: scale(1.05);
+    z-index: 2;
+}
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -1405,16 +1448,23 @@ input::-webkit-inner-spin-button {
     let isLongPressActive = false; // Variável global de controle
 
     function handlePressStart(e, tipo) {
-        isLongPressActive = false;
-        pressTimer = setTimeout(() => {
-            isLongPressActive = true;
-            openEditor(tipo);
-        }, 600);
-    }
+      isLongPressActive = false;
+      
+      pressTimer = setTimeout(() => {
+          isLongPressActive = true;
+          
+          // VIBRAÇÃO: Só dispara se o tempo de "segurar" for atingido
+          if (navigator.vibrate) {
+              navigator.vibrate(50); // Pulso rápido de 50 milissegundos
+          }
+          
+          openEditor(tipo); // Abre a janelinha de edição
+      }, 600);
+  }
 
-    function handlePressEnd(e, tipo) {
+    function handlePressEnd() {
         clearTimeout(pressTimer);
-        // Se quiser que o clique simples no banner ou titulo faça algo no futuro,
+            // Se quiser que o clique simples no banner ou titulo faça algo no futuro,
         // você usaria: if(!isLongPressActive) { ... }
     }
 
@@ -1422,7 +1472,9 @@ input::-webkit-inner-spin-button {
     // só deve agir se NÃO foi um clique longo.
     function setupInteractions(element, type, dateKey) {
       element.onmousedown = (e) => {
-          e.stopPropagation(); // IMPEDE de ativar o editor do wrapper pai
+          e.stopPropagation(); 
+          handlePressStart(e, 'cores');
+          // IMPEDE de ativar o editor do wrapper pai
           isLongPressActive = false;
           pressTimer = setTimeout(() => {
               isLongPressActive = true;
@@ -1432,6 +1484,7 @@ input::-webkit-inner-spin-button {
 
       element.onmouseup = (e) => {
           e.stopPropagation(); // IMPEDE de ativar o editor do wrapper pai
+          handlePressEnd();
           clearTimeout(pressTimer);
           
           // SÓ abre agendamento se NÃO foi clique longo
@@ -1444,6 +1497,7 @@ input::-webkit-inner-spin-button {
       element.ontouchstart = (e) => {
           e.stopPropagation();
           isLongPressActive = false;
+          handlePressStart(e, 'cores');
           pressTimer = setTimeout(() => {
               isLongPressActive = true;
               openEditor('cores');
@@ -1452,6 +1506,7 @@ input::-webkit-inner-spin-button {
 
       element.ontouchend = (e) => {
           e.stopPropagation();
+           handlePressEnd(e, 'cores');
           clearTimeout(pressTimer);
           if (!isLongPressActive && type === 'agendamento') {
               abrirJanelaInformacoes(e.target, dateKey);
@@ -1459,62 +1514,48 @@ input::-webkit-inner-spin-button {
       };
   }
 
+  // --- JANELA DE AGENDAMENTO COM VAGAS DINÂMICAS ---
   function abrirJanelaInformacoes(target, dateKey) {
-    // 1. Limpeza de estados anteriores
-    document.querySelectorAll('.selected-preview').forEach(d => d.classList.remove('selected-preview'));
-    const drawerExistente = document.querySelector('.info-drawer');
-    if (drawerExistente) drawerExistente.remove();
+      document.querySelectorAll('.selected-preview').forEach(d => d.classList.remove('selected-preview'));
+      const drawerExistente = document.querySelector('.info-drawer');
+      if (drawerExistente) drawerExistente.remove();
 
-    // 2. Destaca o dia selecionado (mantendo a posição original dele)
-    target.classList.add('selected-preview');
+      target.classList.add('selected-preview');
 
-    // 3. Localiza o ponto de inserção (Fim da Semana)
-    const grid = target.parentNode;
-    const todosOsDias = Array.from(grid.children);
-    const indiceClicado = todosOsDias.indexOf(target);
-    
-    // Cálculo: Encontra o índice do Sábado (última coluna) da linha atual
-    // Como o grid tem 7 colunas, o fim da linha é sempre o próximo múltiplo de 7 menos 1.
-    let indiceFimDaSemana = (Math.floor(indiceClicado / 7) * 7) + 6;
-    
-    // Garante que não tentaremos inserir depois de um dia que não existe (fim do mês)
-    if (indiceFimDaSemana >= todosOsDias.length) {
-        indiceFimDaSemana = todosOsDias.length - 1;
-    }
+      const grid = target.parentNode;
+      const todosOsDias = Array.from(grid.children);
+      const indiceClicado = todosOsDias.indexOf(target);
+      let indiceFimDaSemana = (Math.floor(indiceClicado / 7) * 7) + 6;
+      if (indiceFimDaSemana >= todosOsDias.length) indiceFimDaSemana = todosOsDias.length - 1;
 
-    const noDeReferencia = todosOsDias[indiceFimDaSemana];
+      const drawer = document.createElement('div');
+      drawer.className = 'info-drawer';
+      
+      // LÓGICA DE VAGAS:
+      const config = scheduleData.config || { vagas: 20 };
+      const statusDia = scheduleData[dateKey]; // Verifica se é Meio-Período
+      
+      // Se for Meio-Período, divide as vagas por 2
+      let vagasExibidas = config.vagas;
+      let labelExtra = "";
 
-    // 4. Criação da Janela (Drawer)
-    const drawer = document.createElement('div');
-    drawer.className = 'info-drawer';
-    
-    // Buscamos as configurações salvas no scheduleData.config
-    const config = scheduleData.config || {};
-    const isHorario = config.usarAgendamento || false;
+      if (statusDia === 'Meio-Período') {
+          vagasExibidas = Math.floor(config.vagas / 2);
+          labelExtra = "<span style='color: orange; display: block; font-size: 11px;'>(Horário Reduzido)</span>";
+      }
 
-    drawer.innerHTML = `
-        <div class="drawer-content">
-            <h4>📅 Detalhes para o dia ${dateKey.split('-')[2]}</h4>
-            <p>✨ <strong>${config.vagas || 0} vagas</strong> disponíveis</p>
-            <p>📍 ${isHorario ? 'Agendamento por Horários' : 'Ordem de Chegada'}</p>
-            <p>🕒 Horário: ${config.open || '--:--'} às ${config.close || '--:--'}</p>
-            <button class="save-btn" onclick="alert('Simulação: Agendamento Concluído!')" style="width:100%; margin-top:10px;">
-                Agendar Agora
-            </button>
-        </div>
-    `;
+      drawer.innerHTML = `
+          <div class="drawer-content">
+              <h4>📅 Detalhes: Dia ${dateKey.split('-')[2]}</h4>
+              <p>✨ <strong>${vagasExibidas} vagas</strong> disponíveis ${labelExtra}</p>
+              <p>🕒 Horário: ${config.open || '08:00'} às ${config.close || '18:00'}</p>
+              <button class="save-btn" style="width:100%; margin-top:10px;">Agendar Agora</button>
+          </div>
+      `;
 
-    // 5. Insere APÓS o último dia da semana selecionada
-    noDeReferencia.after(drawer);
-
-    // 6. Rolagem Automática (Resolvendo seu pedido de rolagem)
-    setTimeout(() => {
-        drawer.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'nearest' 
-        });
-    }, 700);
-}
+      todosOsDias[indiceFimDaSemana].after(drawer);
+      setTimeout(() => drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
 
   function generatePreviewCalendar() {
   const viewMonth = viewDate.getMonth();
@@ -1563,9 +1604,9 @@ input::-webkit-inner-spin-button {
     // Verifica Folgas e Meio-Período salvos no scheduleData
     if (scheduleData[dateKey] === 'Folga') {
       dayElement.classList.add('day-off');
-    } else if (scheduleData[dateKey] === 'Meio-Período') {
-      dayElement.classList.add('day-half');
-    }
+    } //else if (scheduleData[dateKey] === 'Meio-Período') {
+      //dayElement.classList.add('day-half');
+    //}
 
     // Adiciona o dia ao grid (Usando a variável correta: grid)
     grid.appendChild(dayElement);
@@ -1590,7 +1631,10 @@ input::-webkit-inner-spin-button {
   }
 }
     
-    
+
+  
+
+
   function closeBooking() {
     const modal = document.getElementById('booking-modal');
     modal.style.animation = "slideDown 0.3s ease-in"; // Opcional: animação de saída
@@ -1914,7 +1958,6 @@ window.onload = generatePreviewCalendar;
 </script>
 </body>
 </html>
-
 
 
 
