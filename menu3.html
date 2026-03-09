@@ -831,9 +831,9 @@ input::-webkit-inner-spin-button {
         <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sab</div>
       </div>
       <div class="calendar-grid" id="calendar-admin">
-        <div class="calendar-day" onmousedown="startPress(event, 1)" onmouseup="endPress(event, 1)" ontouchstart="startPress(event, 1)" ontouchend="endPress(event, 1)">1</div>
-        <div class="calendar-day" onmousedown="startPress(event, 2)" onmouseup="endPress(event, 2)">2</div>
-        <div class="calendar-day" onmousedown="startPress(event, 3)" onmouseup="endPress(event, 3)">3</div>
+        <div class="calendar-day" onmousedown="startPressAdmin(event, 1)" onmouseup="endPressAdmin(event, 1)" ontouchstart="startPress(event, 1)" ontouchend="endPress(event, 1)">1</div>
+        <div class="calendar-day" onmousedown="startPressAdmin(event, 2)" onmouseup="endPressAdmin(event, 2)">2</div>
+        <div class="calendar-day" onmousedown="startPressAdmin(event, 3)" onmouseup="endPressAdmin(event, 3)">3</div>
       </div>
     </div>
     <div id="holiday-list-container" class="holiday-info-box">
@@ -1082,6 +1082,9 @@ input::-webkit-inner-spin-button {
   }
  }
 
+
+
+
   // VARIÁVEIS GLOBAIS
   let pressTimer;
   let isLongPress = false;
@@ -1160,6 +1163,14 @@ input::-webkit-inner-spin-button {
       // 2. Restaurar estado (Agora inclui os domingos pré-marcados)
       if (scheduleData[dateKey] === 'Folga') dayElement.classList.add('day-off');
       if (scheduleData[dateKey] === 'Meio-Período') dayElement.classList.add('day-half');
+
+      // ATRIBUI OS EVENTOS DE CLIQUE
+      dayElement.onmousedown = () => startPressAdmin(day);
+      dayElement.onmouseup = () => endPressAdmin(day);
+      
+      // Mobile
+      dayElement.ontouchstart = () => startPressAdmin(day);
+      dayElement.ontouchend = () => endPressAdmin(day);
 
       // Dentro do loop de dias da generatePreviewCalendar
       if (scheduleData[dateKey] !== 'Folga') {
@@ -1765,7 +1776,41 @@ function timeToMinutes(timeString) {
 }
 
 
-  
+  let adminTimer;
+  let isAdminLongPress = false;
+
+  // Função para o início do clique no calendário de ADMIN
+  function startPressAdmin(day) {
+    isAdminLongPress = false;
+    adminTimer = setTimeout(() => {
+      isAdminLongPress = true;
+      toggleDayStatus(day, 'Meio-Período'); // Se segurar, vira Meio-Período
+    }, 600);
+  }
+
+  // Função para o fim do clique no calendário de ADMIN
+  function endPressAdmin(day) {
+    clearTimeout(adminTimer);
+    if (!isAdminLongPress) {
+      toggleDayStatus(day, 'Folga'); // Se for clique rápido, vira Folga
+    }
+  }
+
+  // Função que altera o status no objeto scheduleData
+  function toggleDayStatus(day, statusDesejado) {
+    const viewMonth = viewDate.getMonth();
+    const viewYear = viewDate.getFullYear();
+    const dateKey = `${viewYear}-${viewMonth + 1}-${day}`;
+
+    if (scheduleData[dateKey] === statusDesejado) {
+      delete scheduleData[dateKey]; // Se já era o status, remove (fica dia normal)
+    } else {
+      scheduleData[dateKey] = statusDesejado;
+    }
+
+    generateCalendar();           // Atualiza o calendário de Admin
+    generatePreviewCalendar(); // Atualiza o Mockup instantaneamente
+  } 
 
   
 function calculateWorkMinutes() {
