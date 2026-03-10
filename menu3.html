@@ -801,6 +801,36 @@ input::-webkit-inner-spin-button {
     transform: scale(1.05);
     z-index: 2;
 }
+/* Botão X discreto para o modal de agendamento no mockup */
+.close-modal-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.close-modal-btn:hover {
+  color: #333;
+}
+
+.banner {
+  height: 120px;
+  background-color: #ddd;
+  background-image: url('https://via.placeholder.com/400x120?text=Seu+Banner+Aqui'); /* Imagem Padrão [cite: 348, 632] */
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
 </style>
 <div class="mobile-menu-container">
   <nav class="side-tabs">
@@ -973,11 +1003,8 @@ input::-webkit-inner-spin-button {
 
         
         <div id="calendar-wrapper-mockup" 
-           class="calendar-wrapper preview-mode editable-element" 
-           onmousedown="handlePressStart(event, 'cores')" 
-           onmouseup="handlePressEnd(event, 'cores')"
-           ontouchstart="handlePressStart(event, 'cores')" 
-           ontouchend="handlePressEnd(event, 'cores')">
+           class="calendar-wrapper preview-mode" 
+           >
 
         <div class="calendar-header">
           <button class="nav-btn" style="opacity: 0.5; cursor: default;">&#10094;</button>
@@ -1273,7 +1300,33 @@ input::-webkit-inner-spin-button {
   }
   
 
+// Função para lidar com o upload da imagem do banner
+function uploadBannerImage() {
+  // Cria um input de arquivo invisível
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
 
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = event => {
+        // Aplica a imagem ao banner no mockup 
+        const banner = document.querySelector('.editable-element.banner');
+        banner.style.backgroundImage = `url('${event.target.result}')`;
+        banner.innerText = ''; // Remove o texto instrutivo após subir imagem
+        
+        console.log("Banner atualizado com sucesso!");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  input.click(); // Abre a janela de busca de arquivos do usuário
+}
+
+// Atualize a função que renderiza o editor para incluir o botão 
 
   function abrirJanelaAgendamento(dia, dateKey) {
     const modal = document.getElementById('booking-modal');
@@ -1433,7 +1486,7 @@ input::-webkit-inner-spin-button {
         e.target.dataset.longPress = "false";
         pressTimer = setTimeout(() => {
             e.target.dataset.longPress = "true";
-            openEditor(type); // Ativa edição (Banner, Título ou Cores do Calendário)
+            //openEditor(type); // Ativa edição (Banner, Título ou Cores do Calendário)
         }, LONG_PRESS_DURATION);
     }
 
@@ -1473,7 +1526,7 @@ input::-webkit-inner-spin-button {
     function setupInteractions(element, type, dateKey) {
       element.onmousedown = (e) => {
           e.stopPropagation(); 
-          handlePressStart(e, 'cores');
+          //handlePressStart(e, 'cores');
           // IMPEDE de ativar o editor do wrapper pai
           isLongPressActive = false;
           pressTimer = setTimeout(() => {
@@ -1497,16 +1550,16 @@ input::-webkit-inner-spin-button {
       element.ontouchstart = (e) => {
           e.stopPropagation();
           isLongPressActive = false;
-          handlePressStart(e, 'cores');
+          //handlePressStart(e, 'cores');
           pressTimer = setTimeout(() => {
               isLongPressActive = true;
-              openEditor('cores');
+              //openEditor('cores');
           }, 600);
       };
 
       element.ontouchend = (e) => {
           e.stopPropagation();
-           handlePressEnd(e, 'cores');
+           //handlePressEnd(e, 'cores');
           clearTimeout(pressTimer);
           if (!isLongPressActive && type === 'agendamento') {
               abrirJanelaInformacoes(e.target, dateKey);
@@ -1546,6 +1599,7 @@ input::-webkit-inner-spin-button {
 
       drawer.innerHTML = `
           <div class="drawer-content">
+              <button class="close-modal-btn" onclick="closeBooking()">✕</button>
               <h4>📅 Detalhes: Dia ${dateKey.split('-')[2]}</h4>
               <p>✨ <strong>${vagasExibidas} vagas</strong> disponíveis ${labelExtra}</p>
               <p>🕒 Horário: ${config.open || '08:00'} às ${config.close || '18:00'}</p>
@@ -1679,46 +1733,21 @@ input::-webkit-inner-spin-button {
         <input type="color" onchange="updateTitleColor(this.value)">
       `;
     } else if (tipo === 'banner') {
-      title.innerText = "Editar Banner";
-      content.innerHTML = `
-        <button class="save-btn" style="font-size:12px;">Subir Imagem</button>
-        <div style="margin-top:10px;">
-          <label style="font-size:10px;">Cor de Fundo</label>
-          <input type="color" style="width:100%" onchange="updateBannerColor(this.value)">
-        </div>
-      `;
-    }// --- NOVA OPÇÃO PARA O CALENDÁRIO ---
-            
-        
-      else if (tipo === 'cores') {
-        title.innerText = "Temas do Calendário";
-        content.innerHTML = `
-          <div class="theme-grid" style="display: flex; flex-direction: column; gap: 8px;">
-            <button class="tab-button" onclick="applyTheme('modern-dark')" style="background:#ecfdf5; color:#059669; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
-              🌿 Moderno (Verde/Cinza)
-            </button>
-            <button class="tab-button" onclick="applyTheme('classic-red')" style="background:#fee2e2; color:#ef4444; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
-              🍎 Clássico (Vermelho/Branco)
-            </button>
-            <button class="tab-button" onclick="applyTheme('')" style="background:#f3f4f6; color:#333; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
-              ✨ Padrão (Indigo)
-            </button>
-          </div>
-        `;
-      }
-      // ... manter os outros if (titulo, banner) que você já tem no arquivo
-    }
+    title.innerText = "Editar Banner";
+    content.innerHTML = `
+      <div class="setting-group">
+        <label>Imagem do Banner</label>
+        <button class="save-btn" onclick="uploadBannerImage()">Subir nova imagem</button>
+        <small style="display:block; margin-top:5px; color:#666;">Formatos aceitos: JPG, PNG.</small>
+      </div>
+    `;
+  }
   
-  
+  }
   function closeEditor() {
     document.getElementById('editor-popover').style.display = 'none';
   }
-  function applyTheme(tema) {
-    const mockup = document.querySelector('.calendar-wrapper.preview-mode');
-    // Remove temas anteriores e aplica o novo
-    mockup.classList.remove('modern-dark', 'classic-red');
-    if (tema) mockup.classList.add(tema);
-  }
+  
   
   function updateTitle(val) { document.getElementById('preview-title').innerText = val; }
   function updateTitleColor(val) { document.getElementById('preview-title').style.color = val; }
@@ -1766,23 +1795,8 @@ function openEditor(tipo) {
       </div>
     `;
   }
-    else if (tipo === 'cores') {
-          title.innerText = "Temas do Calendário";
-          content.innerHTML = `
-            <div class="theme-grid" style="display: flex; flex-direction: column; gap: 8px;">
-              <button class="tab-button" onclick="applyTheme('modern-dark')" style="background:#ecfdf5; color:#059669; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
-                🌿 Moderno (Verde/Cinza)
-              </button>
-              <button class="tab-button" onclick="applyTheme('classic-red')" style="background:#fee2e2; color:#ef4444; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
-                🍎 Clássico (Vermelho/Branco)
-              </button>
-              <button class="tab-button" onclick="applyTheme('')" style="background:#f3f4f6; color:#333; border:1px solid #ddd; width:100%; cursor:pointer; padding:10px; border-radius:8px;">
-                ✨ Padrão (Indigo)
-              </button>
-            </div>
-          `;
-        }
-}
+    
+ }
 
 function closeEditor() {
   document.getElementById('editor-popover').style.display = 'none';
@@ -1958,6 +1972,44 @@ window.onload = generatePreviewCalendar;
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
